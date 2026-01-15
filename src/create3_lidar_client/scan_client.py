@@ -7,12 +7,15 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import LaserScan
 
-ScanCallback = Callable [[LaserScan], None]
+
+ScanCallback = Callable[[LaserScan], None]
+
 
 @dataclass
 class ScanClientConfig:
-  topic: str = "/scan"
-  node_name: str = "create3_lidar_client"
+    topic: str = "/scan"
+    node_name: str = "create3_lidar_client"
+
 
 class ScanClient:
     def __init__(self, config: ScanClientConfig | None = None) -> None:
