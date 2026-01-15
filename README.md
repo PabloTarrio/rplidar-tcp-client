@@ -25,9 +25,10 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -U pip
 pip install -e .
-
+```
 ## EJEMPLO
 Tras cargar el entorno de ROS2 y activar tu venv:
 
-``bash
+```bash
 python examples/print_scan_stub.py
+```
