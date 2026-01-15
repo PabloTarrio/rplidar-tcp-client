@@ -1,9 +1,21 @@
+import math
+
 from create3_lidar_client import ScanClient
 
 
 def on_scan(msg):
-    # Ejemplo mínimo: imprime el número de lecturas y el ángulo inicial
-    print(len(msg.ranges), msg.angle_min)
+    finite = [r for r in msg.ranges if math.isfinite(r)]
+    if finite:
+        print(
+            f"ranges={len(msg.ranges)} finite={len(finite)} "
+            f"min={min(finite):.3f}m max={max(finite):.3f}m "
+            f"angle_min={msg.angle_min:.3f} rad angle_max={msg.angle_max:.3f} rad"
+        )
+    else:
+        print(
+            f"ranges={len(msg.ranges)} finite=0 "
+            f"angle_min={msg.angle_min:.3f} rad angle_max={msg.angle_max:.3f} rad"
+        )
 
 
 def main():
