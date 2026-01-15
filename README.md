@@ -1,5 +1,6 @@
 # create3-lidar-client
-Librería Python orientada a docencia para conectarse a un sistema ROS 2 (Create3 + SBC/RPi) y consumir en remoto el topic /scan (mensajes sensor_msgs/LaserScan) de un LIDAR, ofreciendo una API sencilla para leer, filtrar y reenviar datos de distancia desde scripts o aplicaciones. ​
+
+Librería Python orientada a docencia para conectarse a un sistema ROS 2 (Create3 + SBC/RPi) y consumir en remoto el topic `/scan` (mensajes `sensor_msgs/LaserScan`) de un LIDAR.
 
 ## Objetivo
 
@@ -13,16 +14,10 @@ Consumir el topic `/scan` (tipo `sensor_msgs/LaserScan`) desde un sistema ROS 2 
 
 ## Requisitos de ejecución
 
-Este paquete **requiere** ROS 2 (p. ej. Humble) instalado y el entorno cargado (`source /opt/ros/<distro>/setup.bash`) para poder usar `ScanClient`.
-
-## Ejemplo
-
-Tras cargar el entorno de ROS 2 y activar tu venv:
-
-```bash
-python examples/print_scan_stub.py
+Este paquete requiere ROS 2 (p. ej. Humble) instalado y el entorno cargado (`source /opt/ros/<distro>/setup.bash`) para poder usar `ScanClient`.
 
 ## Instalación (modo desarrollo)
+
 ```bash
 git clone https://github.com/PabloTarrio/create3-lidar-client.git
 cd create3-lidar-client
@@ -30,3 +25,9 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -U pip
 pip install -e .
+
+## EJEMPLO
+Tras cargar el entorno de ROS2 y activar tu venv:
+
+``bash
+python examples/print_scan_stub.py
