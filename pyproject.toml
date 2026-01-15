@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "create3-lidar-client"
-version = "0.0.1"
+version = "0.1.0"
 description = "Python client library to consume /scan (sensor_msgs/LaserScan) from a ROS 2 Create 3 setup."
 readme = "README.md"
 requires-python = ">=3.10"
