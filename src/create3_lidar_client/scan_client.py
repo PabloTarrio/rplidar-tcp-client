@@ -7,7 +7,7 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import LaserScan
 
-ScanCallback = Callable [[LaseScan], None]
+ScanCallback = Callable [[LaserScan], None]
 
 @dataclass
 class ScanClientConfig:
