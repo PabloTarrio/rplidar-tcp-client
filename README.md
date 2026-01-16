@@ -34,3 +34,6 @@ Tras cargar el entorno de ROS2 y activar tu venv:
 ```bash
 python examples/print_scan_stub.py
 ```
+
+## Contributing
+See [CONTRIBUTING.md](CONTRIBUTING.md).
