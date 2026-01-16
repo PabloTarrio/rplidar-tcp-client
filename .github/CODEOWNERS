@@ -1,2 +1,5 @@
 # Default owners for everything in the repo
 * @PabloTarrio
+
+# GitHub Actions workflows (more specific rule)
+.github/workflows/* @PabloTarrio
