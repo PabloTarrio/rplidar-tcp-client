@@ -1,3 +1,5 @@
+[![CI](https://github.com/PabloTarrio/create3-lidar-client/actions/workflows/ci.yml/badge.svg)](https://github.com/PabloTarrio/create3-lidar-client/actions/workflows/ci.yml)
+
 # create3-lidar-client
 
 Librería Python orientada a docencia para conectarse a un sistema ROS 2 (Create3 + SBC/RPi) y consumir en remoto el topic `/scan` (mensajes `sensor_msgs/LaserScan`) de un LIDAR.
