@@ -1,0 +1,1 @@
+TODO -> Configuración de `usb0` con IP fija (192.168.186.3/24), configuración de interfaz Wi-Fi (si aplica) y solución de problemas de descubrimiento DDS.
