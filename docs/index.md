@@ -32,6 +32,7 @@ Problemas comunes y soluciones.
 Hojas de datos y manuales de referencia oficiales.
 
 - **[Documentación RPLIDAR A1](./vendor/rplidar_a1/)** — Documentación técnica oficial de Slamtec: datasheet, manual de usuario, protocolo de comunicación y referencia del SDK.
+- **[Documentación iRobot Create 2](./vendor/create3/)** - Documentación técnica oficial de iRobot: datasheet, manual de usuario, archivos STL
 
 ---
 
