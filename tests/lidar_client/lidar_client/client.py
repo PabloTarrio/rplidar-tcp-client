@@ -2,8 +2,8 @@
 Cliente para conectarse al servidor LIDAR TCP y recibir revoluciones.
 """
 
-import socket
 import pickle
+import socket
 
 
 class LidarClient:
