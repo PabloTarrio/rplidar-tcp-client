@@ -42,26 +42,26 @@ try:
         print("\n[3] Esperando cliente...")
         cliente, direccion = servidor.accept()
         print(f"✓ Cliente conectado desde {direccion}")
-        
+
         try:
             # Obtener generador de escaneos
             scan_generator = lidar.iter_scans()
-            
+
             # Capturar una revolución
             scan_data = next(scan_generator)
             print(f"✓ Capturados {len(scan_data)} puntos")
-            
+
             # Serializar y enviar
             datos_serializados = pickle.dumps(scan_data)
             tamano = len(datos_serializados)
-            
+
             # Enviar primero el tamaño (4 bytes)
-            cliente.sendall(tamano.to_bytes(4, byteorder='big'))
+            cliente.sendall(tamano.to_bytes(4, byteorder="big"))
             # Luego los datos
             cliente.sendall(datos_serializados)
-            
+
             print(f"✓ Enviados {tamano} bytes al cliente")
-            
+
         except Exception as e:
             print(f"✗ Error: {e}")
         finally:
