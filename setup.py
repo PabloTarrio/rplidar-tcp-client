@@ -8,7 +8,7 @@ setup(
     description="Cliente Python para recibir datos de RPLIDAR A1 vía TCP",
     long_description=open("README_lidar_client.md").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/PabloTarrio/create3-lidar-client",
+    url="https://github.com/PabloTarrio/rplidar-tcp-client",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     classifiers=[
