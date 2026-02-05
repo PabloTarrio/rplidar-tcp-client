@@ -1,1 +1,0 @@
-TO_DO -> Uso del ejemplo oficial `create3_lidar_slam`: lanzamiento de `sensors_launch.py`, configuración de la transformación estática (frame del láser), y ejecución de SLAM con `slam_toolbox`.
