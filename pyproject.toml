@@ -5,12 +5,35 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "rplidar-tcp-client"
 version = "0.1.0"
-description = "Python client library to consume /scan (sensor_msgs/LaserScan) from a ROS 2 Create 3 setup."
+description = "Python TCP client library for RPLIDAR A1 sensor on Raspberry Pi 4"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { file = "LICENSE" }
+authors = [
+    { name = "Pablo Tarrio", email = "pablo.tarrio@uie.edu" }
+]
+keywords = ["rplidar", "lidar", "tcp", "raspberry-pi", "sensor", "robotics"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Robotics",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+[project.urls]
+Homepage = "https://github.com/PabloTarrio/rplidar-tcp-client"
+Repository = "https://github.com/PabloTarrio/rplidar-tcp-client"
+Issues = "https://github.com/PabloTarrio/rplidar-tcp-client/issues"
+
 [project.optional-dependencies]
-dev = ["pytest"]
+dev = [
+    "pytest>=7.0.0",
+    "ruff>=0.1.0",
+]
 
 [tool.setuptools]
 package-dir = {"" = "src"}
