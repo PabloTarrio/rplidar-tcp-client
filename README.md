@@ -16,7 +16,7 @@ Proporcionar una forma simple y directa de obtener datos de escaneo LIDAR desde 
 - **Fácil instalación**: `pip install` directo
 - **Ejemplos incluidos**: Scripts listos para usar
 
-## 📋 Requisitos
+## Requisitos
 
 ### Servidor (Raspberry Pi 4)
 - Raspberry Pi 4 con Ubuntu 22.04 Server
