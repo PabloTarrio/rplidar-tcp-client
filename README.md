@@ -1,6 +1,6 @@
-[![CI](https://github.com/PabloTarrio/create3-lidar-client/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/PabloTarrio/create3-lidar-client/actions/workflows/ci.yml)
+[![CI](https://github.com/PabloTarrio/create3-lidar-client/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/PabloTarrio/rplidar-tcp-client/actions/workflows/ci.yml)
 
-# create3-lidar-client
+# rplidar-tcp-client
 
 Librería Python orientada a docencia para conectarse a un sistema ROS 2 (Create3 + SBC/RPi) y consumir en remoto el topic `/scan` (mensajes `sensor_msgs/LaserScan`) de un LIDAR.
 
@@ -21,8 +21,8 @@ Este paquete requiere ROS 2 (p. ej. Humble) instalado y el entorno cargado (`sou
 ## Instalación (modo desarrollo)
 
 ```bash
-git clone https://github.com/PabloTarrio/create3-lidar-client.git
-cd create3-lidar-client
+git clone https://github.com/PabloTarrio/rplidar-tcp-client.git
+cd rplidar-tcp-client
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -U pip

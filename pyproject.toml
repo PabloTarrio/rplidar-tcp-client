@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "create3-lidar-client"
+name = "rplidar-tcp-client"
 version = "0.1.0"
 description = "Python client library to consume /scan (sensor_msgs/LaserScan) from a ROS 2 Create 3 setup."
 readme = "README.md"
