@@ -11,6 +11,7 @@ Este script se ejecuta en la Raspberry Pi y:
 import pickle
 import socket
 import time
+
 from rplidar import RPLidar
 
 # Configuración
