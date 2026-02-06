@@ -5,7 +5,7 @@ Presiona Ctrl+C para detener.
 
 import time
 
-from lidar_client import LidarClient
+from lidarclient.client import LidarClient
 
 
 def main():

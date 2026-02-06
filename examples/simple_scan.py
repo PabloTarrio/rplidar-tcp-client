@@ -2,7 +2,7 @@
 Ejemplo básico: obtener una revolución completa del LIDAR.
 """
 
-from lidar_client import LidarClient
+from lidarclient.client import LidarClient
 
 
 def main():
