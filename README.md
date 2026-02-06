@@ -19,7 +19,7 @@ Proporcionar una forma simple y directa de obtener datos de escaneo LIDAR desde 
 ## Requisitos
 
 ### Servidor (Raspberry Pi 4)
-- Raspberry Pi 4 con Ubuntu 22.04 Server
+- Raspberry Pi 4 con Ubuntu 24.04 Server
 - RPLIDAR A1 conectado vía USB
 - Python 3.10+
 - Librería `rplidar` instalada
