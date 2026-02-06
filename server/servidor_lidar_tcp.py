@@ -1,11 +1,6 @@
 #!/usr/bin/env python3
 """
 Servidor TCP para RPLIDAR A1 en Raspberry Pi 4.
-
-Este script se ejecuta en la Raspberry Pi y:
-1. Se conecta al RPLIDAR A1 vía puerto serie
-2. Captura revoluciones completas del sensor
-3. Envía los datos serializados a clientes TCP conectados
 """
 
 import pickle
@@ -16,7 +11,7 @@ from rplidar import RPLidar
 
 # Configuración
 LIDAR_PORT = "/dev/ttyUSB0"
-TCP_HOST = "0.0.0.0"  # Escucha en todas las interfaces
+TCP_HOST = "0.0.0.0"
 TCP_PORT = 5000
 
 print("=" * 60)
@@ -44,29 +39,25 @@ try:
         print(f"✓ Cliente conectado desde {direccion}")
 
         try:
-            # Obtener generador de escaneos
             scan_generator = lidar.iter_scans()
+            revolution_count = 0
 
-            # Capturar una revolución
-            scan_data = next(scan_generator)
-            print(f"✓ Capturados {len(scan_data)} puntos")
+            for scan_data in scan_generator:
+                revolution_count += 1
+                datos_serializados = pickle.dumps(scan_data)
+                tamano = len(datos_serializados)
+                cliente.sendall(tamano.to_bytes(4, byteorder="big"))
+                cliente.sendall(datos_serializados)
+                print(
+                    f"Rev #{revolution_count}: {len(scan_data)} puntos, {tamano} bytes"
+                )
 
-            # Serializar y enviar
-            datos_serializados = pickle.dumps(scan_data)
-            tamano = len(datos_serializados)
-
-            # Enviar primero el tamaño (4 bytes)
-            cliente.sendall(tamano.to_bytes(4, byteorder="big"))
-            # Luego los datos
-            cliente.sendall(datos_serializados)
-
-            print(f"✓ Enviados {tamano} bytes al cliente")
-
+        except (BrokenPipeError, ConnectionResetError):
+            print(f"Cliente desconectado después de {revolution_count} revoluciones")
         except Exception as e:
-            print(f"✗ Error: {e}")
+            print(f"Error: {e}")
         finally:
             cliente.close()
-            print("✓ Cliente desconectado")
 
 except KeyboardInterrupt:
     print("\n\n⚠ Interrupción detectada! Deteniendo servidor...")
