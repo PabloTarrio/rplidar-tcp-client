@@ -16,7 +16,7 @@ estadísticas en formato similar a los mensajes sensor_msgs/LaserScan de ROS 2:
 
 import math
 
-from lidar_client import LidarClient
+from lidarclient.client import LidarClient
 
 
 def on_scan(scan):
