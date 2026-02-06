@@ -7,7 +7,7 @@ Este directorio contiene el código del servidor TCP que se ejecuta en la Raspbe
 ### Hardware
 - Raspberry Pi 4 (recomendado) o superior
 - RPLIDAR A1 conectado vía USB (adaptador incluido en el kit)
-- Tarjeta SD con Ubuntu 22.04 Server (o similar)
+- Tarjeta SD con Ubuntu 24.04 Server (o similar)
 
 ### Software
 - Python 3.10 o superior
@@ -30,6 +30,9 @@ sudo apt install python3 python3-pip -y
 ``` bash
 # Listar dispositivos USB
 lsusb | grep -i "10c4:ea60"
+        # 10c4 = VendorID (VID)  - Identificador del fabricante [Silicon Labs]
+        # ea60 = ProductID (PID) - Identificador del producto específico [Chip C210x UART Bridge]
+        # Estamos buscando específicamente este dispositivo
 
 # Verificar puerto de serie
 ls -l /dev/ttyUSB0
@@ -47,16 +50,29 @@ newgrp dialout
 ### Paso 4: Instalar dependencias
 ```bash
 # Instalar la librería rplidar
-pip3 install rplidar-roboticia
+pip3 install rplidar-roboticia 
 ```
+
+> NOTA:
+> Ubuntu 24.04 implementa PEP668 lo que impide instalar paquetes con pip directamente en el sistema para proteger conflictos.
+>
+> Dado que en mi proyecto voy a clonar la SD para replicarla, preferimos saltarnos esta restricción e instalar directamente en el sistema, aunque no es recomentable.
+>
+> Lo recomendable sería crear un Entorno Virtual, activarlo y realizar en él la instalación con el comando anterior.
+
+```bash
+# Instalar la librería rplidar directamente en el sistema.
+pip3 install rplidar-roboticia --break-system-packages
+```
+
 ### Paso 5: Copiar el servidor a la Raspberry Pi
 Desde tu PC, copia el archivo del servidor:
 ```bash
-scp servidor_lidar_tcp.py usuario@IP_RASPBERRY:/home/usuario/
+scp /tu_ruta_al_archivo/servidor_lidar_tcp.py USUARIO_RASPBERRY_PI@IP_RASPBERRY_PI:/home/USUARIO_RASPBERRY_PI
 ```
 Ejemplo:
 ```bash
-scp servidor_lidar_tcp.py pi@192.168.1.100:/home/pi
+scp /home/miusuario/proyecto/servidor_lidar_tcp.py pi@192.168.1.100:/home/pi
 ```
 ## Ejecutar en el servidor
 En la Raspberry Pi:
