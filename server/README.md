@@ -115,45 +115,111 @@ Si tu LIDAR está en /dev/ttyUSB1 o similar:
 LIDAR PORT = "/dev/ttyUSB1"
 ```
 
-### Ejecutar como servicio systemd (arranque automático)
+### Ejecutar como servicio systemd (arranque automático) [RECOMENDADO]
+
 Para que el servidor arranque automáticamente al encender la Raspberry Pi:
 
-1. Crear archivo de servicio:
+### 1. Crear ubicación permanente con entorno virtual
+
 ```bash
-sudo nano etc/systemd/system/lidar-server.service
+# Crear carpeta del servidor
+sudo mkdir -p /opt/rplidar-server
+
+# Copiar el servidor
+sudo cp servidor_lidar_tcp.py /opt/rplidar-server/
+sudo chmod +x /opt/rplidar-server/servidor_lidar_tcp.py
+
+# Instalar python3-venv si no está
+sudo apt install -y python3-venv
+
+# Crear entorno virtual
+sudo python3 -m venv /opt/rplidar-server/.venv
+
+# Instalar dependencias en el venv
+sudo /opt/rplidar-server/.venv/bin/pip install rplidar-roboticia
 ```
-
-2. Pegar el siguiente contenido (ajusta las rutas si es necesario):
-
+### 2. Crear archivo de servicio
+```bash
+sudo nano /etc/systemd/system/rplidar-server.service 
+```
+Pegar este contenido en el archivo:
 ```text
 [Unit]
-Description=RPLIDAR TCP Server
+Description=RPLIDAR A1 TCP Server
 After=network.target
+Wants=network-online.target
 
 [Service]
 Type=simple
-User=pi
-WorkingDirectory=/home/pi
-ExecStart=/usr/bin/python3 /home/pi/servidor_lidar_tcp.py
-Restart=always
-RestartSec=10
+User=root
+WorkingDirectory=/opt/rplidar-server
+ExecStart=/opt/rplidar-server/.venv/bin/python3 /opt/rplidar-server/servidor_lidar_tcp.py
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
 
 [Install]
 WantedBy=multi-user.target
 ```
-
-3. Activar y arrancar el servicio
+### 3. Activar y arrancar el servicio
 ```bash
+# Recargar configuración de systemd
 sudo systemctl daemon-reload
-sudo systemctl enable lidar-server
-sudo systemctl start lidar-server
+
+# Habilitar arranque automático
+sudo systemctl enable rplidar-server.service
+
+# Arrancar el servicio ahora
+sudo systemctl start rplidar-server.service
 
 # Ver estado
-sudo systemctl status lidar-server
-
-# Ver logs
-journalctl -u lidar-server -f
+sudo systemctl status rplidar-server.service
 ```
+### 4. Gestión del servicio
+```bash
+# Ver logs en tiempo real
+sudo journalctl -u rplidar-server.service -f
+
+# Reiniciar servicio
+sudo systemctl restart rplidar-server.service
+
+# Detener servicio
+sudo systemctl stop rplidar-server.service
+
+# Deshabilitar arranque automático
+sudo systemctl disable rplidar-server.service
+```
+### 5. Verificar que funciona
+```bash
+# Comprobar que el puerto 5000 está escuchando
+sudo ss -tlnp | grep 5000
+# Debería mostrar: LISTEN ... python3 ...
+
+# Obtener IP de la Raspberry Pi
+hostname -I
+```
+### 6. Clonar a otra Raspberry Pi
+Para replicar esta configuración en otra RPi:
+```bash
+# 1. Copiar carpeta completa del servidor
+scp -r /opt/rplidar-server usuario@otra-rpi:/opt/
+
+# 2. Copiar archivo de servicio
+scp /etc/systemd/system/rplidar-server.service usuario@otra-rpi:/tmp/
+
+# 3. En la otra RPi, mover y activar
+sudo mv /tmp/rplidar-server.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable rplidar-server.service
+sudo systemctl start rplidar-server.service
+```
+
+### Ventajas de este método
+* Entorno virtual aislado (cumple PEP668)
+* Fácil de clonar a múltiples RPi
+* Arranque automático robusto
+* Logs centralizados en journalctl
 
 ## Solución de problemas
 
