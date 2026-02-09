@@ -49,11 +49,11 @@ try:
                 revolution_count += 1
                 datos_serializados = pickle.dumps(scan_data)
                 tamano = len(datos_serializados)
-                
+
                 # Enviar tamaño (4 bytes) + datos
                 cliente.sendall(tamano.to_bytes(4, byteorder="big"))
                 cliente.sendall(datos_serializados)
-                
+
                 print(
                     f"Rev #{revolution_count}: {len(scan_data)} puntos, {tamano} bytes"
                 )
