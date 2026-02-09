@@ -30,8 +30,10 @@ Repository = "https://github.com/PabloTarrio/rplidar-tcp-client"
 Issues = "https://github.com/PabloTarrio/rplidar-tcp-client/issues"
 
 [project.optional-dependencies]
-dev = [
+ddev = [
     "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-mock>=3.10.0",
     "ruff>=0.1.0",
 ]
 
@@ -46,3 +48,17 @@ line-length = 88
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--strict-markers",
+    "--tb=short",
+    "--cov=src/lidarclient",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+]
