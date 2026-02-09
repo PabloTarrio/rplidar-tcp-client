@@ -43,7 +43,9 @@ class LidarClient:
         Args:
             host (str): Dirección IP de la Raspberry Pi
             port (int): Puerto del servidor (por defecto 5000)
-            timeout (float): Timeout en segundos para operaciones de red (por defecto 5.0)
+            timeout (float): Timeout en segundos para operaciones de red
+                (por defecto 5.0)
+
         """
         self.host = host
         self.port = port
@@ -141,7 +143,8 @@ class LidarClient:
             bytes: Datos recibidos
 
         Raises:
-            LidarConnectionError: Si la conexión se cierra antes de recibir todos los bytes
+            LidarConnectionError: Si la conexión se cierra antes de recibir
+                todos los bytes
         """
         datos = b""
         while len(datos) < num_bytes:
