@@ -1,5 +1,9 @@
 """
-Ejemplo avanzado: stream continuo de revoluciones.
+Ejemplo avanzado: stream continuo de revoluciones con reconexión automática.
+
+Este ejemplo usa connect_with_retry() para intentar conectarse automáticamente
+hasta 3 veces si el servidor no está disponible.
+
 Presiona Ctrl+C para detener.
 """
 
@@ -9,10 +13,10 @@ from lidarclient.client import LidarClient
 
 
 def main():
-    client = LidarClient("192.168.1.100", port=5000)
+    client = LidarClient("192.168.1.100", port=5000, max_retries=3, retry_delay=2.0)
 
     try:
-        client.connect()
+        client.connect_with_retry()
         print("Conectado al servidor LIDAR")
         print("Presiona Ctrl+C para detener\n")
 
