@@ -2,6 +2,46 @@
 
 All notable changes to this project will be documented in this file.
 
+---
+
+## [0.4.0] - 2026-02-11
+
+### Added
+- Sistema de configuración flexible con `config.ini`
+  - Archivo de plantilla `config.ini.example` versionado
+  - Parser de configuración en `src/lidar_client/config.py`
+  - Configuración de: host, port, timeout, max_retries, retry_delay
+  - Documentación de los 6 LIDAR del laboratorio UIE
+  - Protección con `.gitignore` para evitar subir configuraciones locales
+- Reconexión automática del cliente
+  - Nuevo método `connect_with_retry()` con lógica de reintentos
+  - Parámetros configurables `max_retries` y `retry_delay`
+  - Logging informativo de cada intento de conexión
+- Tests unitarios con pytest (Commit #58)
+  - Cobertura de código: 88%
+  - CI/CD automático con GitHub Actions
+  - Ejecución automática en cada Pull Request
+- Servicio systemd para servidor persistente
+  - Arranque automático al iniciar la Raspberry Pi
+  - Entorno virtual aislado (cumple PEP 668)
+  - Logs centralizados con journalctl
+  - Documentación completa en `server/README.md`
+  - Instrucciones de clonación a múltiples RPi
+
+### Changed
+- Ejemplos actualizados para usar `config.ini` en lugar de IPs hardcodeadas
+- Cliente soporta parámetros de reconexión: `max_retries`, `retry_delay`
+- Servidor optimizado: inicia escaneo SOLO cuando hay cliente conectado
+- Servidor detiene escaneo automáticamente al desconectar cliente
+
+### Fixed
+- Saturación del buffer del LIDAR (Commit #55)
+  - El servidor ya no acumula datos cuando no hay clientes conectados
+  - Prevención del error "Too many bytes in the input buffer"
+- Compatibilidad hacia atrás: `connect()` sigue funcionando sin cambios
+
+---
+
 ## [0.3.0] - 2026-02-09
 
 ### Added
