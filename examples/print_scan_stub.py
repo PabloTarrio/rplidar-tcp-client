@@ -1,6 +1,8 @@
 """
 Ejemplo de stream continuo con formato compatible ROS 2 LaserScan.
 
+Lee la configuración desde config.ini para obtener la IP del servidor LIDAR.
+
 Este script obtiene revoluciones del LIDAR de forma continua y muestra
 estadísticas en formato similar a los mensajes sensor_msgs/LaserScan de ROS 2:
 - Número total de mediciones (ranges)
@@ -16,7 +18,8 @@ estadísticas en formato similar a los mensajes sensor_msgs/LaserScan de ROS 2:
 
 import math
 
-from lidarclient.client import LidarClient
+from lidarclient import LidarClient
+from lidarclient.config import ConfigError, load_config
 
 
 def on_scan(scan):
@@ -65,19 +68,37 @@ def main():
     Reemplaza el comportamiento de un nodo ROS 2 que se suscribe al
     topic /scan, pero usando conexión TCP directa sin ROS.
     """
-    # Ajusta la IP a la de tu Raspberry Pi
-    with LidarClient("192.168.1.100", port=5000) as client:
-        try:
-            print("Conectado al servidor LIDAR")
-            print("Mostrando estadísticas de escaneo (formato LaserScan)")
-            print("Presiona Ctrl+C para detener\n")
+    # Cargar configuración desde config.ini
+    try:
+        config = load_config()
+    except ConfigError as e:
+        print(f"Error de configuración: {e}")
+        return
 
-            while True:
-                scan = client.get_scan()
-                on_scan(scan)
+    # Crear cliente con la configuración cargada
+    client = LidarClient(
+        config["host"],
+        port=config["port"],
+        timeout=config["timeout"],
+        max_retries=config["max_retries"],
+        retry_delay=config["retry_delay"],
+    )
 
-        except KeyboardInterrupt:
-            print("\nDetenido por usuario")
+    try:
+        client.connect_with_retry()
+        print("Conectado al servidor LIDAR")
+        print(f"Servidor: {config['host']}:{config['port']}")
+        print("Mostrando estadísticas de escaneo (formato LaserScan)")
+        print("Presiona Ctrl+C para detener\n")
+
+        while True:
+            scan = client.get_scan()
+            on_scan(scan)
+
+    except KeyboardInterrupt:
+        print("\nDetenido por usuario")
+    finally:
+        client.disconnect()
 
 
 if __name__ == "__main__":

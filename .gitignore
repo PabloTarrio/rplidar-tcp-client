@@ -218,3 +218,5 @@ __marimo__/
 test_*.py
 scratch_*.py
 
+# Configuración local del usuario (no versionar)
+config.ini

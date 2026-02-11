@@ -1,0 +1,47 @@
+# =============================================================================
+# Configuración del Cliente LIDAR - Laboratorio UIE
+# =============================================================================
+# 
+# INSTRUCCIONES:
+# 1. Copia este archivo a 'config.ini':
+#      cp config.ini.example config.ini
+#
+# 2. Edita config.ini y cambia la IP por tu LIDAR asignado
+#
+# 3. NO modifiques config.ini.example (es la plantilla)
+#
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# LIDAR disponibles en el laboratorio
+# -----------------------------------------------------------------------------
+#
+#   LIDAR 1: 192.168.1.101
+#   LIDAR 2: 192.168.1.102
+#   LIDAR 3: 192.168.1.103
+#   LIDAR 4: 192.168.1.104
+#   LIDAR 5: 192.168.1.105
+#   LIDAR 6: 192.168.1.106
+#
+# Pregunta a tu profesor/supervisor cuál LIDAR te corresponde.
+#
+# -----------------------------------------------------------------------------
+
+[lidar]
+# IP del servidor LIDAR (OBLIGATORIO - cambia por tu LIDAR asignado)
+host = 192.168.1.101
+
+# Puerto TCP del servidor (normalmente no necesitas cambiarlo)
+port = 5000
+
+# Timeout en segundos para operaciones de red
+# Si ves errores de timeout, prueba aumentar este valor
+timeout = 5.0
+
+# Número de reintentos automáticos si falla la conexión inicial
+# El cliente intentará conectarse hasta (max_retries + 1) veces
+max_retries = 3
+
+# Segundos de espera entre cada reintento
+# Con retry_delay=2.0, esperará 2s entre cada intento
+retry_delay = 2.0
