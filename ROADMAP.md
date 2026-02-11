@@ -50,6 +50,36 @@ Documento vivo que refleja el estado actual y los próximos pasos del proyecto.
 - [x] Instrucciones de clonación a múltiples RPi
 - [x] Logs centralizados con journalctl
 
+### Fase 7: Optimización y Robustez (Completado 2026-02-11)
+
+- [x] **Buffer del LIDAR** (Commit #55)
+  - Inicio de escaneo solo cuando hay cliente conectado
+  - Detención automática al desconectar cliente
+  - Prevención de saturación del buffer
+- [x] **Manejo robusto de errores** (Commit #56)
+  - Excepciones personalizadas: `LidarConnectionError`, `LidarTimeoutError`, `LidarDataError`
+  - Timeout configurable en el constructor del cliente
+  - Validación de tamaño de datos (100 bytes - 50KB)
+  - Context manager para gestión automática de recursos
+- [x] **Reconexión automática del cliente**
+  - Método `connect_with_retry()` con reintentos configurables
+  - Parámetros `max_retries` y `retry_delay`
+  - Logging informativo de cada intento
+- [x] **Configuración flexible con config.ini**
+  - Archivo `config.ini.example` como plantilla
+  - Parser en `src/lidar_client/config.py`
+  - Configuración de: host, port, timeout, max_retries, retry_delay
+  - Documentación de los 6 LIDAR del laboratorio
+  - Protección con `.gitignore`
+
+### Fase 8: Testing y Calidad (Completado 2026-02-11)
+
+- [x] Tests unitarios con pytest (Commit #58)
+- [x] Cobertura de código: 88%
+- [x] CI/CD con GitHub Actions
+- [x] Linting automático con ruff en cada PR
+- [x] Formato de código automático
+
 ---
 
 ## En Progreso
@@ -65,24 +95,6 @@ Actualmente no hay tareas en progreso.
 - [ ] Documentar formato de datos recibidos (estructura de las tuplas)
 - [ ] Añadir badges al README (Python version, license, etc.)
 - [ ] Crear `CONTRIBUTING.md` con guías de contribución
-
-### Optimización del Sistema
-
-- [ ] Manejo robusto de errores:
-  - [ ] Reconexión automática del cliente
-  - [ ] Timeout configurable
-  - [ ] Limpieza del buffer del LIDAR al conectar
-- [ ] Configuración flexible:
-  - [ ] Archivo de configuración para IP/puerto
-  - [ ] Variables de entorno
-  - [ ] Argumentos de línea de comandos
-
-### Testing y Calidad
-
-- [ ] Tests unitarios para `LidarClient`
-- [ ] Tests de integración servidor-cliente
-- [ ] CI/CD: Ejecutar tests automáticamente en PRs
-- [ ] Cobertura de código (coverage)
 
 ### Integración con Repositorio Existente
 
@@ -129,7 +141,7 @@ Actualmente no hay tareas en progreso.
 
 ## Notas
 
-- **Fecha última actualización:** 2026-02-06
+- **Fecha última actualización:** 2026-02-11
 - **Responsable:** Pablo Tarrio
 - **Repositorio:** rplidar-tcp-client
 - **Hardware:** Raspberry Pi 4 + RPLIDAR A1
