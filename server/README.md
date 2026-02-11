@@ -13,6 +13,14 @@ Este directorio contiene el código del servidor TCP que se ejecuta en la Raspbe
 - Python 3.10 o superior
 - Puerto serie `/dev/ttyUSB0` disponible
 
+### Cliente
+Los clientes remotos requieren:
+
+* Python 3.10+ con la libreria `lidarclient` instalada.
+* Archivo `config.ini` configurado con la IP de este servidor
+
+Ver [../README.md](../README.md) para instrucciones completas de configuración del cliente.
+
 ## Instalación
 
 ### Paso 1: Preparar el entorno
@@ -52,7 +60,6 @@ newgrp dialout
 # Instalar la librería rplidar
 pip3 install rplidar-roboticia 
 ```
-
 > NOTA:
 > Ubuntu 24.04 implementa PEP668 lo que impide instalar paquetes con pip directamente en el sistema para proteger conflictos.
 >
@@ -199,6 +206,22 @@ sudo ss -tlnp | grep 5000
 # Obtener IP de la Raspberry Pi
 hostname -I
 ```
+
+Probar desde un cliente:
+
+Los clientes ahora usan `config.ini` para configurar la conexión. Ver [../README.md](../README.md) para instrucciones del cliente.
+
+Ejemplo rápido de prueba desde tu PC:
+```bash
+# 1. Configurar IP del servidor en config.ini
+echo "[lidar]" > config.ini
+echo "host = $(hostname -I | awk '{print $1}')" >> config.ini
+echo "port = 5000" >> config.ini
+
+# 2. Ejecutar ejemplo
+python examples/simple_scan.py
+```
+
 ### 6. Clonar a otra Raspberry Pi
 Para replicar esta configuración en otra RPi:
 ```bash
