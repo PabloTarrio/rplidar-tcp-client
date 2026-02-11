@@ -1,23 +1,38 @@
 """
 Ejemplo avanzado: stream continuo de revoluciones con reconexión automática.
 
-Este ejemplo usa connect_with_retry() para intentar conectarse automáticamente
-hasta 3 veces si el servidor no está disponible.
+Lee la configuración desde config.ini para obtener la IP del servidor LIDAR.
 
 Presiona Ctrl+C para detener.
 """
 
 import time
 
-from lidarclient.client import LidarClient
+from lidarclient import LidarClient
+from lidarclient.config import ConfigError, load_config
 
 
 def main():
-    client = LidarClient("192.168.1.100", port=5000, max_retries=3, retry_delay=2.0)
+    # Cargar configuración desde config.ini
+    try:
+        config = load_config()
+    except ConfigError as e:
+        print(f"Error de configuración: {e}")
+        return
+
+    # Crear cliente con la configuración cargada
+    client = LidarClient(
+        config["host"],
+        port=config["port"],
+        timeout=config["timeout"],
+        max_retries=config["max_retries"],
+        retry_delay=config["retry_delay"],
+    )
 
     try:
         client.connect_with_retry()
         print("Conectado al servidor LIDAR")
+        print(f"Servidor: {config['host']}:{config['port']}")
         print("Presiona Ctrl+C para detener\n")
 
         revolution_count = 0
@@ -40,18 +55,18 @@ def main():
                     f"Válidos={len(valid):3d} "
                     f"Dist.Media={avg_dist:7.1f}mm "
                     f"Min={min(distances):6.1f}mm "
-                    f"Max={max(distances):6.1f}mm"
+                    f"Max={max(distances):7.1f}mm"
                 )
             else:
                 print(f"Rev #{revolution_count:3d}: Sin puntos válidos")
 
-            time.sleep(0.1)  # Pequeña pausa para no saturar
+            time.sleep(0.1)
 
     except KeyboardInterrupt:
-        print(f"\n\nDetenido por usuario. Total revoluciones: {revolution_count}")
+        print("\n\nInterrupción detectada por usuario.")
+        print(f"Total revoluciones: {revolution_count}")
     finally:
         client.disconnect()
-        print("Desconectado del servidor")
 
 
 if __name__ == "__main__":

@@ -8,11 +8,14 @@ from .client import (
     LidarDataError,
     LidarTimeoutError,
 )
+from .config import ConfigError, load_config
 
 __version__ = "0.3.0"
 __all__ = [
     "LidarClient",
     "LidarConnectionError",
-    "LidarTimeoutError",
     "LidarDataError",
+    "LidarTimeoutError",
+    "ConfigError",
+    "load_config",
 ]
