@@ -3,6 +3,49 @@
 All notable changes to this project will be documented in this file.
 
 ---
+## [0.5.0] - 2026-02-12
+
+### Added
+
+#### Visualización en Tiempo Real (PR #64)
+- Nuevo script `examples/visualize_realtime.py`
+  - Plot polar 2D con matplotlib y animación en tiempo real (FuncAnimation)
+  - Mapa de colores por distancia (jet_r: rojo cerca, azul lejos)
+  - Fondo negro con texto blanco para mejor visualización nocturna
+  - Estadísticas actualizadas por revolución en el título
+  - Filtrado automático de mediciones inválidas (distance = 0)
+  - Orientación correcta: 0° arriba, rotación horaria
+- Dependencias opcionales `[visualization]` en `pyproject.toml`
+  - matplotlib>=3.5.0
+  - numpy>=1.21.0
+  - Instalación: `pip install rplidar-tcp-client[visualization]`
+- Documentación visual completa
+  - Capturas de pantalla en `examples/images/`
+  - Guía detallada con controles e interpretación en `examples/README.md`
+
+#### Modo de Escaneo Configurable (PR #65)
+- Soporte para seleccionar entre modo **Standard** y **Express**
+  - Nuevo parámetro `scan_mode` en `LidarClient` (default: `'Express'`)
+  - Validación de valores permitidos: `'Standard'` o `'Express'`
+  - Cliente envía el modo seleccionado al servidor vía TCP
+- Implementación dinámica en servidor (`servidor_lidar_tcp.py`)
+  - Recepción del modo de escaneo desde cada cliente
+  - Selección automática entre `iter_scans()` (Standard) y `iter_express_scans()` (Express)
+  - Logging del modo activo para debugging
+- Parámetro `scan_mode` en `config.ini.example`
+  - Nueva opción con documentación de valores válidos
+  - Explicación de diferencias entre Standard y Express
+- Nuevo script de diagnóstico: `examples/lidar_diagnostics.py`
+  - Herramienta para analizar rendimiento del LIDAR
+  - Captura 3 revoluciones con estadísticas detalladas
+  - Muestra: puntos, cobertura angular, densidad, frecuencia, tiempos
+  - Manejo correcto de `quality = None` en modo Express
+  - Descarta automáticamente primera revolución (warmup)
+
+### Changed
+- Todos los ejemplos actualizados para pasar `scan_mode` desde configuración
+  - `simple_scan.py`, `continuous_stream.py`, `print_scan_stub.py`, `visualize_realtime.py`
+- Documentación actualizada con co
 
 ## [0.4.0] - 2026-02-11
 

@@ -42,6 +42,7 @@ port = 5000
 timeout = 5.0
 max_retries = 3
 retry_delay = 2.0
+scan_mode = Express   # Standard o Express
 ```
 
 LIDAR disponibles en el Laboratorio:
@@ -250,6 +251,87 @@ Interpretación del gráfico:
 
 > NOTA: Si ejecutas por SSH sin display gráfico, necesitarás X11 forwarding o ejecutar localmente.
 
+### 5. `lidar_diagnostics.py` - Comparación de modos de escaneo
+
+#### Qué hace:
+
+Herramienta de diagnósticos que analiza el rendimiento del LIDAR capturando 3 revoluciones y mostrando estadísticas detalladas del modo de escaneo configurado.
+
+#### Ideal para:
+
+* Comparar rendimiento entre modo Standard y Express.
+* Verificar configuración del LIDAR.
+* Diagnosticar problemas de cobertura o densidad.
+* Entender las diferencias entre modos de escaneo.
+* Validar que el sistema funciona óptimamente.
+
+#### Uso:
+
+```bash
+python examples/lidar_diagnostics.py
+```
+
+Salida esperada:
+
+```text
+============================================================
+   COMPARACIÓN DE MODOS DE ESCANEO RPLIDAR A1
+============================================================
+
+Conectando a 192.168.1.103:5000
+Conectado
+
+Descartando primera revolución (warmup)...
+Warmup completado
+
+Capturando 3 revoluciones para análisis...
+   Revolución 1/3...
+   Revolución 2/3...
+   Revolución 3/3...
+
+============================================================
+   Revolución #1 (Tiempo: 0.128s)
+============================================================
+ Total de puntos:    346
+ Puntos válidos:     346 (100.0%)
+ Calidad promedio:   No disponible (modo Express)
+ Cobertura angular:  359.3°
+ Distancia mínima:   357.0 mm
+ Distancia máxima:   5221.0 mm
+ Densidad:           0.96 puntos/grado
+============================================================
+
+[... revoluciones 2 y 3 ...]
+
+============================================================
+  PROMEDIOS DE 3 REVOLUCIONES
+============================================================
+  Puntos promedio:      347.7
+  Válidos promedio:     347.7
+  Tiempo promedio:      0.126s
+  Frecuencia:           7.94 Hz
+============================================================
+```
+
+Características:
+
+* Descarta automáticamente la primera revolución (warmup del sistema).
+* Captura 3 revoluciones para análisis estadístico.
+* Muestra estadísticas por revolución y promedios.
+* Maneja correctamente ambos modos de escaneo.
+* En modo Express: muestra "No Disponible" para calidad.
+* En modo Standard: muestra calidad promedio (0-15).
+
+Interpretación:
+
+* Puntos/revolución: Express ~720, Standard ~360.
+* Frecuencia: Típicamente 5-10 Hz.
+* Cobertura angular: Debería estar cerca de 360º
+* Densidad: Express tiene mayor densidad (~0.96 puntos/grado)
+
+>NOTA: La primera revolución siempre tarda ~1s (sincronización). Este script la descarta automáticamente.
+
+
 ## Formato de datos del LIDAR
 
 Todas las revoluciones se devuelven como una lista de tuplas:
@@ -259,16 +341,37 @@ scan = client.get_scan()
 # scan = [(quality, angle, distance),(quality, angle, distance), ...]
 ```
 
-* quality (int): Confianza de la medición de (0-15, donde 15 es máxima calidad)
+* quality (int | None): Confianza de la medición de
+    * Modo Standard: 0-15 (donde 15 es la máxima calidad) 
+    * Modo Express: None (no disponible en este modo)
 * angle (float): Ángulo en grados (0-360º)
 * distance (float): Distancia en milímetros (0 = sin medición válida)
+
+Diferencias entre los modos de escaneo:
+
+| **Caracteristica**     |  **Standard**  |  **Express**    |
+|:----------------------:|:--------------:|:---------------:|
+| Puntos/revolucion      |  ~360          |  ~720           |
+| Datos de calidad       |  Si (0-15)     |  No (None)      |
+| Densidad               |  Normal        |  Alta           |
+| Velocidad              |  Normal        |  Más rápido     |
+
 
 ### Ejemplo de procesamiento.
 
 ```python
+# Filtrar solo mediciones válidas
 for quality, angle, distance in scan:
     if distance > 0:  # Filtrar mediciones válidas
         print(f"Objeto detectado a {angle:.1f}° y {distance:.1f} mm")
+
+# Procesar calidad (solo en modo Standard)
+for quality, angle, distance in scan:
+    if distance > 0:
+        if quality is not None:  # Modo Standard
+            print(f"Calidad: {quality}/15")
+        else:  # Modo Express
+            print("Calidad: No disponible")
 ```
 ## Reconexión automática
 Todos los ejemplos usan `connect_with_retry()` que reintenta la conexión automáticamente según la configuración en `config.ini`:

@@ -108,6 +108,11 @@ SERVIDOR LIDAR TCP (modo continuo)
 ```
 El servidor quedará esperando conexiones. Para detenerlo, presiona `CTRL+C`
 
+> **NOTA sobre modos de escaneo:**
+> El servidor recibe el modo de escaneo (Standard o Express) desde cada cliente que se conecta.
+> No es necesario configurar nada en el servidor. Los clientes especifican su modo preferido
+> en su archivo `config.ini` mediante el parámetro `scan_mode`.
+
 ## Configuración avanzada
 ### Cambiar el puerto TCP
 Edita `servidor_lidar_tcp.py` y modifica:
@@ -217,9 +222,10 @@ Ejemplo rápido de prueba desde tu PC:
 echo "[lidar]" > config.ini
 echo "host = $(hostname -I | awk '{print $1}')" >> config.ini
 echo "port = 5000" >> config.ini
-
-# 2. Ejecutar ejemplo
-python examples/simple_scan.py
+echo "timeout = 5.0" >> config.ini
+echo "max_retries = 3" >> config.ini
+echo "retry_delay = 2.0" >> config.ini
+echo "scan_mode = Express" >> config.ini
 ```
 
 ### 6. Clonar a otra Raspberry Pi
@@ -302,10 +308,25 @@ sudo ufw allow 5000/tcp
 hostname -I
 ```
 
-## Rendimiento:
-* Puntos por revolución: ~60-70 puntos (modo normal)
-* Frecuencia de escaneo: ~5-10Hz
+## Rendimiento
+
+El servidor soporta dos modos de escaneo que el cliente puede seleccionar:
+
+### Modo Standard
+* Puntos por revolución: ~360 puntos
+* Datos de calidad: Sí (0-15)
+* Frecuencia de escaneo: ~5-10 Hz
 * Latencia de red: <50ms en LAN
+* Ideal para: Aplicaciones que necesitan datos de calidad de las mediciones
+
+### Modo Express
+* Puntos por revolución: ~720 puntos (mayor densidad)
+* Datos de calidad: No (`None`)
+* Frecuencia de escaneo: ~5-10 Hz
+* Latencia de red: <50ms en LAN
+* Ideal para: Aplicaciones que priorizan densidad de puntos sobre calidad
+
+> **Nota:** El modo se configura desde el cliente en `config.ini` mediante el parámetro `scan_mode`.
 
 ## Referencias
 * [RPLIDAR A1 Datasheet](https://www.slamtec.com/en/Lidar/A1)

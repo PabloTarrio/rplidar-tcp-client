@@ -80,6 +80,56 @@ Documento vivo que refleja el estado actual y los próximos pasos del proyecto.
 - [x] Linting automático con ruff en cada PR
 - [x] Formato de código automático
 
+### Fase 9: Visualización y Modo de Escaneo Configurable (Completado 2026-02-12)
+
+#### Visualización en Tiempo Real (PR #64)
+
+- [x] **Script `visualize_realtime.py`**
+  - Plot polar 2D con matplotlib
+  - Actualización en tiempo real (FuncAnimation)
+  - Mapa de colores por distancia (jet_r: rojo cerca, azul lejos)
+  - Fondo negro con texto blanco para mejor visualización
+  - Estadísticas por revolución en el título
+  - Filtrado automático de mediciones inválidas
+- [x] **Dependencias opcionales**
+  - Grupo `[visualization]` en `pyproject.toml`
+  - matplotlib>=3.5.0, numpy>=1.21.0
+  - Instalación: `pip install rplidar-tcp-client[visualization]`
+- [x] **Documentación visual**
+  - Capturas de pantalla en `examples/images/`
+  - Guía completa en `examples/README.md`
+  - Controles e interpretación del gráfico
+
+#### Modo de Escaneo Configurable (PR #65)
+
+- [x] **Parámetro `scan_mode` en LidarClient**
+  - Soporte para modo Standard y Express
+  - Valor por defecto: `Express`
+  - Validación de valores permitidos
+  - Cliente envía modo al servidor vía TCP
+- [x] **Implementación en servidor**
+  - Recepción del modo desde el cliente
+  - Selección dinámica entre `iter_scans()` y `iter_express_scans()`
+  - Logging del modo activo
+- [x] **Configuración en `config.ini`**
+  - Nueva opción `scan_mode = Express`
+  - Documentación de valores válidos (Standard/Express)
+- [x] **Actualización de todos los ejemplos**
+  - `simple_scan.py`, `continuous_stream.py`, `print_scan_stub.py`, `visualize_realtime.py`
+  - Todos leen `scan_mode` desde configuración
+- [x] **Nuevo script de diagnóstico**
+  - `examples/lidar_diagnostics.py` para comparar modos
+  - Estadísticas detalladas: puntos, cobertura, densidad, tiempos
+  - Manejo correcto de `quality = None` en modo Express
+  - Descarta primera revolución (warmup)
+- [x] **Documentación actualizada**
+  - README.md con explicación de Standard vs Express
+  - examples/README.md con tabla comparativa
+  - Ejemplos de procesamiento según el modo
+
+
+
+
 ---
 
 ## En Progreso
@@ -104,10 +154,6 @@ Actualmente no hay tareas en progreso.
 
 ### Funcionalidades Avanzadas
 
-- [ ] Visualización en tiempo real:
-  - [ ] Plot 2D de los puntos del LIDAR
-  - [ ] Actualización en tiempo real
-  - [ ] Librería matplotlib o pygame
 - [ ] Guardado de datos:
   - [ ] Exportar a CSV
   - [ ] Exportar a JSON
@@ -141,7 +187,7 @@ Actualmente no hay tareas en progreso.
 
 ## Notas
 
-- **Fecha última actualización:** 2026-02-11
+- **Fecha última actualización:** 2026-02-12
 - **Responsable:** Pablo Tarrio
 - **Repositorio:** rplidar-tcp-client
 - **Hardware:** Raspberry Pi 4 + RPLIDAR A1
