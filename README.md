@@ -114,7 +114,11 @@ python examples/continuous_stream.py
 
 # Formato compatible con ROS 2 LaserScan
 python examples/print_scan_stub.py
+
+# Visualización de datos en tiempo real. Gráfico 2D
+python examples/visualize_realtime.py
 ```
+
 
 Todos los ejemplos leen automaticamente tu `config.ini`, así que solo necesitas configurarlo una vez.
 
@@ -123,19 +127,20 @@ Consulta [examples/README.md](/examples/README.md) para más detalles sobre cada
 ## Estructura del proyecto
 ```text
 rplidar-tcp-client/
-|--- config.ini.example          # Plantilla de configuración
-|--- src/
-|    |---lidarclient/
-|        |--- __init__.py
-|        |--- client.py
-|        |--- config.py          # Parser de configuración
-|--- examples/                   # Scripts de ejemplo
-|    |--- simple_scan.py
-|    |--- continuous_stream.py
-|    |--- print_scan_stub.py
-|--- server/                     # Código del servidor (Raspberry Pi)
-|--- tests/                      # Tests
-|--- docs/                       # Documentación adicional
+|___ config.ini.example          # Plantilla de configuración
+|___ src/
+|    |___lidarclient/
+|        |___ __init__.py
+|        |___ client.py
+|        |___ config.py          # Parser de configuración
+|___ examples/                   # Scripts de ejemplo
+|    |___ simple_scan.py
+|    |___ continuous_stream.py
+|    |___ print_scan_stub.py
+|    |___ visualize_realtime.py
+|___ server/                     # Código del servidor (Raspberry Pi)
+|___ tests/                      # Tests
+|___ docs/                       # Documentación adicional
 ```
 
 ## Configuración avanzada

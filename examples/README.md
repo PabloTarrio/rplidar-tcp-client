@@ -171,6 +171,85 @@ ranges=68 finite=66 min=0.358m max=1.912m angle_min=3.281 rad angle_max=6.139 ra
 
 #### Detener: Presiona `Ctrl+C` para finalizar
 
+### 4. `visualize_realtime.py` - Visualización gráfica en tiempo real
+
+#### Qué hace:
+
+Muestra los datos del LIDAR en un gráfico polar 2D animado con actualización en tiempo real.
+
+### Ideal para:
+
+* Visualización intuitiva del entorno escaneado.
+* Debugging visual de la cobertura del LIDAR.
+* Demostraciones y presentaciones
+* Educación: entender cómo ve el LIDAR
+* Detectar problemas de hardware visualmente.
+
+#### Requisitos adicionales:
+
+```bash
+pip install matplotlib numpy
+```
+
+o instalar con el grupo de dependencias:
+
+```bash
+pip install -e .[visualization]
+```
+
+#### Uso
+
+```bash
+python examples/visualize_realtime.py
+```
+
+Salida esperada:
+Se abrirá una ventana gráfica mostrando:
+
+Ademas en la terminal se muestra:
+```text
+Conectando a 192.168.1.103:5000...
+Conectado correctamente
+
+Iniciando visualización en tiempo real...
+- Cierra la ventana o presiona Ctrl+C para detener
+```
+
+Ventana de visualización:
+<p align="center">
+  <img src="images/visualization_real_screenshot.jpg" alt="Visualización RPLIDAR en tiempo real" width="400" style="margin-right: 10px;">
+  <img src="images/visualization_screenshot.png" alt="Visualización RPLIDAR simulada" width="300">
+</p>
+
+<p align="center">
+  <em>Izquierda: Estado real | Derecha: Visualización</em>
+</p>
+
+
+* Fondo negro con texto blanco.
+* Plot polar circular (el LIDAR está en el centro).
+* Puntos con gradiente de color.
+* Título actualizado con estadísticas por revolución.
+* Rango: 0 - 6000 mm (0 - 6 metros).
+
+Características:
+* Actualización en tiempo real cada 100ms (~10 FPS).
+* Mapa de colores por distancia.
+* Filtrado autmático de mediciones inválidas (distance = 0).
+* Estadísticas en el título: número de puntos, distancia min/max.
+* Orientación: 0º arriba, rotación horaria (como el LIDAR físico).
+
+Controles:
+* Cerrar ventana o Ctrl+C para detener.
+
+Interpretación del gráfico:
+* Centro = Posición del LIDAR.
+* Ángulo = dirección de la medición (0-360º, 0º hacia arriba).
+* Distancia desde el centro = Distancia al obstáculo (mm)
+* Color = Gradiente por distancia (rojo= cerca, azul= lejos).
+
+> NOTA: Si ejecutas por SSH sin display gráfico, necesitarás X11 forwarding o ejecutar localmente.
+
 ## Formato de datos del LIDAR
 
 Todas las revoluciones se devuelven como una lista de tuplas:
