@@ -60,6 +60,7 @@ port = 5000
 timeout = 5.0
 max_retries = 3
 retry_delay = 2.0
+scan_mode = Express
 ```
 LIDAR disponibles en el Laboratorio:
 
@@ -88,10 +89,11 @@ config = load_config()
 # Conectar al servidor
 with LidarClient(
     config["host"],
-    port=config["port"],
-    timeout=config["timeout"],
-    max_retries=config["max_retries"],
-    retry_delay=config["retry_delay"]
+    port = config["port"],
+    timeout = config["timeout"],
+    max_retries = config["max_retries"],
+    retry_delay = config["retry_delay"],
+    scan_mode = config["scan_mode"]
 ) as client:
     # Obtener una revolución completa
     scan = client.get_scan()
@@ -117,6 +119,9 @@ python examples/print_scan_stub.py
 
 # Visualización de datos en tiempo real. Gráfico 2D
 python examples/visualize_realtime.py
+
+# Diagnóstico y comparación de modos de escaneo
+python examples/lidar_diagnostics.py
 ```
 
 
@@ -138,6 +143,7 @@ rplidar-tcp-client/
 |    |___ continuous_stream.py
 |    |___ print_scan_stub.py
 |    |___ visualize_realtime.py
+|    |___ lidar_diagnostics.py
 |___ server/                     # Código del servidor (Raspberry Pi)
 |___ tests/                      # Tests
 |___ docs/                       # Documentación adicional
@@ -151,6 +157,10 @@ Parámetros del `config.ini`:
 * `timeout` (default: 5.0): Timeout en segundos para operaciones de red
 * `max_retries` (default: 3): Número de reintentos si falla la conexión
 * `retry_delay` (default: 2.0): Segundos de espera entre reintentos
+* `scan_mode` (default: Express): Modo de escaneo del LIDAR
+    - `Standard`: ~360 puntos/revolución, incluye datos de calidad (0-15)
+    - `Express` : ~720 puntos/revolución, sin datos de calidad
+
 
 Uso sin `config.ini` (avanzado)
 
@@ -159,7 +169,7 @@ Si necesitas especificar la IP directamente en el código:
 ```python
 from lidarclient import LidarClient
 
-client = LidarClient("10.0.0.5", port=5000, max_retries=3)
+client = LidarClient("10.0.0.5", port=5000, max_retries=3, scan_mode= 'Express')
 client.connect_with_retry()
 scan = client.get_scan()
 client.disconnect()
