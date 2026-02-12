@@ -30,11 +30,15 @@ Repository = "https://github.com/PabloTarrio/rplidar-tcp-client"
 Issues = "https://github.com/PabloTarrio/rplidar-tcp-client/issues"
 
 [project.optional-dependencies]
-ddev = [
+dev = [
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
     "pytest-mock>=3.10.0",
     "ruff>=0.1.0",
+]
+visualization = [
+    "matplotlib>=3.5.0",
+    "numpy>=1.21.0",
 ]
 
 [tool.setuptools]
