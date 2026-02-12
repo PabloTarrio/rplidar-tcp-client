@@ -45,3 +45,8 @@ max_retries = 3
 # Segundos de espera entre cada reintento
 # Con retry_delay=2.0, esperará 2s entre cada intento
 retry_delay = 2.0
+
+# Modo de escaneo del LIDAR (express o standard)
+# - express: ~700-800 puntos/revolución, mayor densidad (RECOMENDADO)
+# - standard: ~150-360 puntos/revolución, menor densidad, menor carga CPU
+scan_mode = express

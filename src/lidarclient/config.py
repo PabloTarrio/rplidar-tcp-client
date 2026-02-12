@@ -51,11 +51,13 @@ def load_config():
 
     Returns:
         dict: Diccionario con la configuración del LIDAR
-            - host    (str)      : IP del servidor
-            - port    (int)      : Puerto TCP
-            - timeout (float)    : Timeout en segundos
+            - host        (str)  : IP del servidor
+            - port        (int)  : Puerto TCP
+            - timeout     (float): Timeout en segundos
             - max_retries (int)  : Reintentos de conexión
             - retry_delay (float): Delay entre intentos
+            - scan_mode   (str)  : Modo de escaneo ('express' o 'standard')
+
     Raises:
         ConfigError: Si hay errores en el archivo de configuración
     """
@@ -94,6 +96,7 @@ def load_config():
             "timeout": lidar_config.getfloat("timeout", fallback=5.0),
             "max_retries": lidar_config.getint("max_retries", fallback=3),
             "retry_delay": lidar_config.getfloat("retry_delay", fallback=2.0),
+            "scan_mode": lidar_config.get("scan_mode", fallback="express"),
         }
 
     except ValueError as e:
@@ -109,4 +112,5 @@ DEFAULT_CONFIG = {
     "timeout": 5.0,
     "max_retries": 3,
     "retry_delay": 2.0,
+    "scan_mode": "express",
 }

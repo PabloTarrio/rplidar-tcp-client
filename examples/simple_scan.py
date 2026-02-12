@@ -23,6 +23,7 @@ def main():
         timeout=config["timeout"],
         max_retries=config["max_retries"],
         retry_delay=config["retry_delay"],
+        scan_mode=config["scan_mode"],
     )
 
     try:
@@ -47,8 +48,10 @@ def main():
 
             print("\nPrimeros 5 puntos:")
             for i, (quality, angle, distance) in enumerate(valid_points[:5], 1):
+                # Manejar calidad None en modo EXPRESS
+                quality_str = f"{quality:2d}" if quality is not None else "--"
                 print(
-                    f"{i}. Calidad {quality:2d}, "
+                    f"{i}. Calidad {quality_str}, "
                     f"Ángulo {angle:6.2f}°, "
                     f"Distancia {distance:7.2f} mm"
                 )
