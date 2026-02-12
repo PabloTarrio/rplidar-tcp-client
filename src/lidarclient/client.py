@@ -26,41 +26,48 @@ class LidarDataError(Exception):
 
 class LidarClient:
     """
-    Cliente para recibir datos del RPLIDAR A1 a través de TCP.
+    Cliente TCP para conectarse a un servidor LIDAR.
 
-    Ejemplo de uso:
-        client = LidarClient('192.168.1.100', port=5000, timeout=5.0)
-        client.connect()
-        scan = client.get_scan()
-        print(f"Recibidos {len(scan)} puntos")
-        client.disconnect()
+    Permite recibir revoluciones completas del LIDAR a través de TCP
+    con soporte para selección de modo de escaneo (standard/express).
+
+    Modos de escaneo:
+        - 'standard': ~150-360 puntos/revolución (menor densidad)
+        - 'express': ~700-800 puntos/revolución (mayor densidad, default)
     """
 
-    def __init__(self, host, port=5000, timeout=5.0, max_retries=0, retry_delay=2.0):
+    def __init__(
+        self,
+        host,
+        port=5000,
+        timeout=5.0,
+        max_retries=0,
+        retry_delay=2.0,
+        scan_mode="express",
+    ):
         """
-        Inicializa el cliente.
+        Inicializa el cliente LIDAR.
 
         Args:
-            host        (str)  : Dirección IP de la Raspberry Pi
-            port        (int)  : Puerto del servidor (por defecto 5000)
-            timeout     (float): Timeout en segundos para operaciones de red
-                (por defecto 5.0)
-            max_retries (int)  : Número máximo de reintentos de conexión
-                (por defecto 0, sin reintentos)
-            retry_delay (float): Segundos de espera entre reintentos
-                (por defecto 2.0)
+            host (str): Dirección IP del servidor
+            port (int): Puerto TCP (default: 5000)
+            timeout (float): Timeout en segundos (default: 5.0)
+            max_retries (int): Número de reintentos de conexión (default: 0)
+            retry_delay (float): Segundos entre reintentos (default: 2.0)
+            scan_mode (str): Modo de escaneo 'standard' o 'express' (default: 'express')
         """
         self.host = host
         self.port = port
         self.timeout = timeout
         self.max_retries = max_retries
         self.retry_delay = retry_delay
+        self.scan_mode = scan_mode.lower()  # Normalizar a minúsculas
         self.socket = None
         self.connected = False
 
     def connect(self):
         """
-        Conecta al servidor LIDAR.
+        Conecta al servidor LIDAR y envía el modo de escaneo.
 
         Raises:
             LidarConnectionError: Si no puede conectarse al servidor
@@ -73,8 +80,15 @@ class LidarClient:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.settimeout(self.timeout)
             self.socket.connect((self.host, self.port))
+
+            # Enviar modo de escaneo al servidor
+            modo_upper = self.scan_mode.upper()
+            self.socket.sendall(modo_upper.encode("utf-8"))
+
             self.connected = True
             print(f"Conectado a {self.host}:{self.port}")
+            print(f"Modo de escaneo: {modo_upper}")
+
         except socket.timeout:
             raise LidarTimeoutError(
                 f"Timeout al conectar a {self.host}:{self.port} "

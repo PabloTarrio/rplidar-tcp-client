@@ -27,6 +27,7 @@ def main():
         timeout=config["timeout"],
         max_retries=config["max_retries"],
         retry_delay=config["retry_delay"],
+        scan_mode=config["scan_mode"],
     )
 
     try:
