@@ -331,6 +331,113 @@ Interpretación:
 
 >NOTA: La primera revolución siempre tarda ~1s (sincronización). Este script la descarta automáticamente.
 
+### 6. `lidar_to_csv.py` - Guardar una revolución en CSV
+
+#### Qué hace:
+
+Captura una o varias revoluciones del LIDAR y la guarda en un archivo CSV para análisis posterior (Excel, Python, etc.)
+
+#### Ideal para:
+
+* Guardar datos puntuales para comparar mediciones.
+* Exportar rápidamente a herramientas externas (Excel/Pandas).
+* Crear datasets simples de pruebas.
+
+#### Uso:
+
+```bash
+python examples/lidar_to_csv.py --revs 3 --out lidar_scans.csv
+```
+
+#### Args:
+
+* --revs: Número de revoluciones a capturar (default: 3).
+* --out: Ruta de salida del CSV (default: lidar_scans.csv)
+
+#### Salida esperada (orientativa):
+
+```text
+Conectando a 192.168.1.103:5000...
+Conectado
+Guardando revolución en CSV: <archivo>.csv
+Recibidos N puntos
+Guardado completado
+```
+### 7. `lidar_to_json.py` - Guardar una revolución en JSON
+
+#### Qué hace:
+
+Captura una o varias revoluciones del LIDAR y la guarda en un archivo JSON (útil para procesar después o intercambiar con otros sistemas)
+
+#### Ideal para:
+
+* Guardar una medición "snapshot" con un formato estructurado.
+* Integración sencilla con otras apps que consumen JSON.
+* Depuración y pruebas rápidas
+
+#### Uso:
+
+```bash
+python examples/lidar_to_json.py --revs 3 --out lidar_scans.json --indent 2
+```
+
+#### Args:
+
+* --revs: Número de revoluciones a capturar (default: 3).
+* --out: Ruta de salida del JSON (default: lidar_scans.json)
+* --indent: Indentación del JSON (default: 2), usa 0 para compacto.
+
+#### Salida esperada (orientativa):
+
+```text
+Conectando a 192.168.1.103:5000...
+Conectado
+Guardando revolución en JSON: <archivo>.json
+Recibidos N puntos
+Guardado completado
+```
+
+### 8. `streaming_lidar_to_jsonl.py` - Stream continuo a JSONL
+
+#### Qué hace:
+
+Recibe revoluciones en bucle y las va guardando en JSONL (JSON Lines): una revolución por linea, ideal para logs largos.
+
+#### Ideal para:
+
+* Registrar sesiones largas para análisis offline
+* Generar datasets grandes sin cargar todo en memoria
+* Procesamiento posterior "linea a linea"
+
+#### Uso (finito):
+
+```bash
+python examples/streaming_lidar_to_jsonl.py --config config.ini --out lidar_stream.jsonl --revs 100
+```
+
+#### Uso (hasta Ctrl+C):
+
+```bash
+python examples/streaming_lidar_to_jsonl.py --config config.ini --out lidar_stream.jsonl
+```
+
+#### Args:
+
+* --config: Path a config.ini (requerido).
+* --out: Ruta de salida .jsonl (requerido).
+* --revs: Número de revoluciones a capturar; si se omite, corre hasta Ctrl+C.
+* --host: Override de [lidar] host del config.ini.
+* --port: Override de [lidar] port del config.ini.
+* --mode: Override de [lidar] scan_mode del config.ini.
+​
+#### Salida esperada (orientativa):
+
+```text
+Conectando a 192.168.1.103:5000...
+Conectado
+Escribiendo stream en JSONL: <archivo>.jsonl
+Presiona Ctrl+C para detener
+```
 
 ## Formato de datos del LIDAR
 
