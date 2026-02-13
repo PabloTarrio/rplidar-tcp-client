@@ -122,6 +122,15 @@ python examples/visualize_realtime.py
 
 # Diagnóstico y comparación de modos de escaneo
 python examples/lidar_diagnostics.py
+
+# Guardar UNA revolución en CSV
+python examples/lidar_to_csv.py
+
+# Guardar UNA revolución en JSON
+python examples/lidar_to_json.py
+
+# Stream continuo guardando a JSONL (una revolución por línea)
+python examples/streaming_lidar_to_jsonl.py
 ```
 
 
@@ -144,6 +153,9 @@ rplidar-tcp-client/
 |    |___ print_scan_stub.py
 |    |___ visualize_realtime.py
 |    |___ lidar_diagnostics.py
+|    |___ lidar_to_csv.py
+|    |___ lidar_to_json.py
+|    |___ streaming_lidar_to_jsonl.py
 |___ server/                     # Código del servidor (Raspberry Pi)
 |___ tests/                      # Tests
 |___ docs/                       # Documentación adicional
