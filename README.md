@@ -227,6 +227,7 @@ with LidarClient(
 #### Nivel básico (Primeros Pasos)
 
 - `simple_scan.py` - Tu primera medición LIDAR
+- `understanding_dat.py` - Entender el formato de datos.
 - `continuous_stream.py` - Stream continuo con estadísticas
 - `print_scan_stub.py` - Formato compatible con ROS 2 LaserScan
 
