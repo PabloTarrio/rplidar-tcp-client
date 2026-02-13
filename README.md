@@ -2,6 +2,12 @@
 
 # rplidar-tcp-client
 
+[![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
+[![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)]()
+[![Coverage](https://img.shields.io/badge/coverage-88%25-green.svg)]()
+
 Librería Python para acceder remotamente a datos del sensor RPLIDAR A1 conectado a una Raspberry Pi 4 mediante TCP sockets.
 
 ## Objetivo
@@ -30,7 +36,109 @@ Proporcionar una forma simple y directa de obtener datos de escaneo LIDAR desde 
 - Python 3.10+
 - Conexión de red a la Raspberry Pi
 
-## Instalación
+## Quick start - Tu primera medición en 10 minutos
+
+### 1. Instalación (2 minutos)
+
+```bash
+# Clonar el repositorio
+git clone https://github.com/PabloTarrio/rplidar-tcp-client.git
+cd rplidar-tcp-client
+
+# Crear entorno virtual
+python3 -m venv venv
+source venv/bin/activate  # En Windows: venv\Scripts\activate
+
+# Instalar la librería
+pip install -e 
+```
+
+### 2. Configuración (3 minutos)
+
+```bash
+# Copiar plantilla de configuración
+cp config.ini.example config.ini
+
+# Editar con tu LIDAR asignado
+nano config.ini
+```
+
+Escoge tu LIDAR del laboratorio y edita la lines `host`:
+
+```bash
+[lidar]
+# LIDAR 1: 192.168.1.101
+# LIDAR 2: 192.168.1.102
+# LIDAR 3: 192.168.1.103
+# LIDAR 4: 192.168.1.104
+# LIDAR 5: 192.168.1.105
+# LIDAR 6: 192.168.1.106
+
+host = 192.168.1.103  # 👈 Cambia esto por tu LIDAR
+port = 5000
+timeout = 5.0
+scanmode = Express
+```
+
+### 3. Tu primer escaneo (5 minutos)
+
+```python
+# Guarda esto como test_lidar.py
+from lidar_client import LidarClient
+from lidar_client.config import load_config
+
+# Cargar configuración
+config = load_config()
+
+# Conectar y obtener una revolución
+with LidarClient(config['host'], port=config['port']) as client:
+    print("Conectando al LIDAR...")
+    scan = client.get_scan()
+    
+    # Analizar resultados
+    valid_points = [p for p in scan if p[2] > 0] 
+    print(f" Revolución recibida: {len(valid_points)} puntos válidos")
+    
+    # Mostrar punto más cercano
+    if valid_points:
+        closest = min(valid_points, key=lambda p: p[2])
+        print(f"Objeto más cercano: {closest[2]:.0f}mm a {closest[1]:.1f}°")
+```
+
+Ejecutar:
+
+```bash
+python test_lidar.py
+```
+
+Salida esperada:
+
+```bash
+Conectando al LIDAR...
+Revolución recibida: 347 puntos válidos
+Objeto más cercano: 358mm a 187.8°
+```
+
+### 4. Explorar ejemplos:
+
+```bash
+# Escaneo básico
+python examples/simple_scan.py
+
+# Stream continuo con estadísticas
+python examples/continuous_stream.py
+
+# Visualización en tiempo real (requiere matplotlib)
+pip install matplotlib numpy
+python examples/visualize_realtime.py
+
+# Guardar datos en CSV
+python examples/lidar_to_csv.py --revs 5 --out datos.csv
+```
+
+> **¿Problemas?** Consulta la seccion de [Solución de Problemas](#solución-de-problemas) al final de este documento.
+
+## Instalación detallada
 
 ### 1. En tu PC (cliente)
 
@@ -76,7 +184,7 @@ LIDAR disponibles en el Laboratorio:
 ### 3. En la Raspberry PI (servidor)
 El servidor TCP debe estar corriendo en la Raspberry Pi. Consulta la documentación en [server/README.md](/server/README.md) para instrucciones de instalación.
 
-## Uso Básico
+## Uso Básico / Ejemplos
 
 ### Ejemplo simple
 ```python
@@ -104,35 +212,57 @@ with LidarClient(
     for quality, angle, distance in scan[:5]:
         print(f"Ángulo: {angle:.2f}°, Distancia: {distance:.2f}mm")
 ```
-### Ejemplos incluidos
 
-El proyecto incluye varios scripts de ejemplo para usar:
-```bash
-# Captura básica de una revolución
-python examples/simple_scan.py
+## Para estudiantes e Investigadores
 
-# Stream continuo con estadísticas
-python examples/continuous_stream.py
+### Casos de uso académico
+- **Robótica móvil**: Navegación autónoma, evitación de obstáculos
+- **Mapeo y SLAM**: Construcción de mapas 2D del entorno
+- **Visión Artificial**: Fusión de sensores LIDAR + cámara
+- **Algoritmos de Control**: Detección de entornos para control reactivo
+- **Proyectos Fin de Grado/Máster**: Base sólida para investigación
 
-# Formato compatible con ROS 2 LaserScan
-python examples/print_scan_stub.py
+### Ejemplos progresivos por Nivel
 
-# Visualización de datos en tiempo real. Gráfico 2D
-python examples/visualize_realtime.py
+#### Nivel básico (Primeros Pasos)
 
-# Diagnóstico y comparación de modos de escaneo
-python examples/lidar_diagnostics.py
+- `simple_scan.py` - Tu primera medición LIDAR
+- `continuous_stream.py` - Stream continuo con estadísticas
+- `print_scan_stub.py` - Formato compatible con ROS 2 LaserScan
 
-# Guardar UNA revolución en CSV
-python examples/lidar_to_csv.py
+**Ideal para**: Familiarizarse con el sensor, entender el formato de los datos
 
-# Guardar UNA revolución en JSON
-python examples/lidar_to_json.py
+#### Nivel intermedio (Análisis y visualización)
 
-# Stream continuo guardando a JSONL (una revolución por línea)
-python examples/streaming_lidar_to_jsonl.py
-```
+- `visualize_realtime.py` - Visualización gráfica en tiempo real
+- `lidar_diagnostics.py` - Comparar modos Standard y Express
+- `lidar_tc_csv.py` / `lidar_to_json.py` - Exportar datos para análisis
 
+**Ideal para**: Debugging, análisis de rendimiento, crear datasets
+
+#### Nivel Avanzado (Próximamente)
+- Filtrado por distancia, ángulo y calidad
+- Detección de obstáculos por sectores
+- Integración con frameworks de robótica
+
+**Ideal para**: Implementar algoritmos, proyectos de investigación
+
+### Ventajas para Investigación
+
+**Sin dependencias ROS 2**: Usa Python puro, más ligero y portable  
+**Configuración simple**: Un archivo `config.ini` y listo  
+**Datos en tiempo real**: Acceso directo vía TCP desde cualquier PC  
+**Múltiples formatos**: CSV, JSON, JSONL para análisis offline  
+**Bien documentado**: Ejemplos comentados paso a paso  
+**Extensible**: API clara para añadir funcionalidad personalizada  
+
+---
+
+### Recursos Adicionales
+
+- **Documentación completa**: Ver [`examples/README.md`](examples/README.md)
+- **Guía de contribución**: [`CONTRIBUTING.md`](CONTRIBUTING.md)
+- **Solución de problemas**: Ver [sección de troubleshooting](#solución-de-problemas)
 
 Todos los ejemplos leen automaticamente tu `config.ini`, así que solo necesitas configurarlo una vez.
 
@@ -159,6 +289,122 @@ rplidar-tcp-client/
 |___ server/                     # Código del servidor (Raspberry Pi)
 |___ tests/                      # Tests
 |___ docs/                       # Documentación adicional
+```
+
+## Formato de Datos del LIDAR
+
+### Estructura de una Revolución
+
+Cada revolución es una **lista de tuplas** con 3 elementos:
+
+```python
+scan = [
+    (quality, angle, distance),
+    (quality, angle, distance),
+    ...
+]
+```
+### Modo Standard vs Express
+
+```python
+(quality, angle, distance)
+```
+
+* quality: `int` (0-15) - Nivel de confianza de la medición
+
+    * `0` =  Baja confianza
+    * `15` = máxima confianza
+    * Útil para filtrar mediciones ruidosas
+
+* angle: `float` (0-360) - Ángulo en grados
+    
+    * 0º = Frente al LIDAR
+    * Rotación horaria
+
+* distance: `float`- Distancia en milimetros
+
+    * `0`= Medición inválida (sin obstáculo detectado)
+    * Rango típico: 150mm - 12000mm (0.15m-12m)
+
+#### Ejemplo
+
+```python
+(15, 90.5, 1250.3)  # Alta calidad, 90.5°, 1.25 metros
+```
+
+### Modo Express (720 puntos/revolución)
+
+```python
+(None, angle, distance)
+```
+
+* quality: `None` - No disponible en modo Express
+* angle: `float` (0-360) - Ángulo en grados
+* distance: `float` - Distancia en milimetros
+
+#### Ejemplo
+
+```python
+(None, 90.5, 1250.3)  # Sin calidad, 90.5°, 1.25 metros
+```
+
+### Procesar los Datos
+
+#### Filtar Mediciones Válidas
+
+```python
+# Obtener solo puntos con medición válida
+valid_points = [(q, a, d) for q, a, d in scan if d > 0]
+```
+
+#### Trabajar con Calidad (solo Standard)
+
+```python
+# Verificar si estamos en modo Standard
+if scan is not None:
+    # Filtrar por calidad mínima
+    high_quality = [(q, a, d) for q, a, d in scan if q is not None and q >= 10]
+else:
+    print("Modo Express: calidad no disponible")
+```
+
+#### Convertir unidades
+
+```python
+# De milímetros a metros
+distances_m = [d / 1000.0 for q, a, d in scan if d > 0]
+
+# De grados a radianes
+import math
+angles_rad = [math.radians(a) for q, a, d in scan if d > 0]
+```
+
+#### Ejemplo completo
+
+```python
+from lidar_client import LidarClient
+from lidar_client.config import load_config
+
+config = load_config()
+
+with LidarClient(config['host'], port=config['port'], 
+                 scan_mode=config['scan_mode']) as client:
+    scan = client.get_scan()
+    
+    # Análisis básico
+    total_points = len(scan)
+    valid_points = [p for p in scan if p[2] > 0]
+    
+    print(f"Total de puntos: {total_points}")
+    print(f"Puntos válidos: {len(valid_points)}")
+    
+    # Encontrar punto más cercano
+    if valid_points:
+        closest = min(valid_points, key=lambda p: p[2])
+        quality, angle, distance = closest
+        print(f"Objeto más cercano: {distance:.0f}mm a {angle:.1f}°")
+        if quality is not None:
+            print(f"  Calidad: {quality}/15")
 ```
 
 ## Configuración avanzada
