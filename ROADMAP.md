@@ -127,8 +127,21 @@ Documento vivo que refleja el estado actual y los próximos pasos del proyecto.
   - examples/README.md con tabla comparativa
   - Ejemplos de procesamiento según el modo
 
+### Fase 10: Guardado de Datos (Completado 2026-02-13)
 
-
+- [x] **Scripts de exportación**
+  - `examples/lidar_to_csv.py` - Guardar una o varias revoluciones en CSV
+  - `examples/lidar_to_json.py` - Guardar una o varias revoluciones en JSON
+  - `examples/streaming_lidar_to_jsonl.py` - Stream continuo a JSONL (línea por revolución)
+- [x] **Argumentos de línea de comandos**
+  - `--config`: Path al archivo config.ini
+  - `--out`: Archivo de salida
+  - `--revs`: Número de revoluciones a capturar (omitir = continuo hasta Ctrl+C)
+  - `--indent`: Indentación JSON (lidar_to_json.py)
+  - `--host`, `--port`, `--mode`: Override de configuración
+- [x] **Documentación**
+  - Ejemplos de uso en `examples/README.md`
+  - Estructura del proyecto actualizada en `README.md`
 
 ---
 
@@ -154,10 +167,6 @@ Actualmente no hay tareas en progreso.
 
 ### Funcionalidades Avanzadas
 
-- [ ] Guardado de datos:
-  - [ ] Exportar a CSV
-  - [ ] Exportar a JSON
-  - [ ] Timestamp de las revoluciones
 - [ ] Filtros y procesamiento:
   - [ ] Filtro por calidad mínima
   - [ ] Filtro por rango de distancia
