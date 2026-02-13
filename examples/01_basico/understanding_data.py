@@ -28,7 +28,7 @@ from lidarclient.config import ConfigError, load_config
 def analyze_data_format(scan, scan_mode):
     """
     Analiza y explica el formato de datos de una revolucion LIDAR.
-    
+
     Args:
         scan: Lista de tuplas (quality, angle, distance)
         scan_mode: String 'Standard' o 'Express'
@@ -36,7 +36,7 @@ def analyze_data_format(scan, scan_mode):
     print("\n" + "=" * 77)
     print("ANALISIS DEL FORMATO DE DATOS")
     print("=" * 77)
-    
+
     # =========================================================================
     # 1. ESTRUCTURA BASICA
     # =========================================================================
@@ -44,88 +44,91 @@ def analyze_data_format(scan, scan_mode):
     print("-" * 77)
     print(f"   Tipo de dato: {type(scan)}")
     print(f"   Numero de elementos: {len(scan)}")
-    print(f"   Cada elemento es una tupla de 3 valores: (quality, angle, distance)")
-    
+    print("   Cada elemento es una tupla de 3 valores: (quality, angle, distance)")
+
     if scan:
         first_point = scan[0]
-        print(f"\n   Ejemplo del primer punto:")
+        print("\n   Ejemplo del primer punto:")
         print(f"     Tupla completa: {first_point}")
         print(f"     - Tipo: {type(first_point)}")
         print(f"     - Longitud: {len(first_point)}")
-    
+
     # =========================================================================
     # 2. CAMPO QUALITY (Calidad)
     # =========================================================================
     print("\n2. CAMPO QUALITY (Calidad de la medicion)")
     print("-" * 77)
-    
+
     qualities = [p[0] for p in scan if p[0] is not None]
-    
+
     if qualities:
         print(f"   Modo: {scan_mode} - Quality DISPONIBLE")
-        print(f"   Rango de valores: 0 (baja confianza) a 15 (maxima confianza)")
-        print(f"\n   Estadisticas de calidad en esta revolucion:")
+        print("   Rango de valores: 0 (baja confianza) a 15 (maxima confianza)")
+        print("\n   Estadisticas de calidad en esta revolucion:")
         print(f"     - Minima: {min(qualities)}")
         print(f"     - Maxima: {max(qualities)}")
         print(f"     - Promedio: {sum(qualities) / len(qualities):.2f}")
-        
+
         # Distribucion de calidades
         quality_dist = {}
         for q in qualities:
             quality_dist[q] = quality_dist.get(q, 0) + 1
-        
-        print(f"\n   Distribucion de calidades:")
+
+        print("\n   Distribucion de calidades:")
         for q in sorted(quality_dist.keys()):
             bar = "#" * (quality_dist[q] // 10)
             print(f"     Calidad {q:2d}: {quality_dist[q]:4d} puntos {bar}")
     else:
         print(f"   Modo: {scan_mode} - Quality NO DISPONIBLE (None)")
-        print(f"   En modo Express, el LIDAR no envia datos de calidad")
-        print(f"   para poder capturar mas puntos por segundo.")
+        print("   En modo Express, el LIDAR no envia datos de calidad")
+        print("   para poder capturar mas puntos por segundo.")
         print(f"   Todos los valores de quality son: {scan[0][0]}")
-    
+
     # =========================================================================
     # 3. CAMPO ANGLE (Angulo)
     # =========================================================================
     print("\n3. CAMPO ANGLE (Angulo en grados)")
     print("-" * 77)
-    
+
     angles = [p[1] for p in scan]
-    print(f"   Rango de valores: 0.0 a 360.0 grados")
-    print(f"   Referencia: 0 = Frente del LIDAR, rotacion horaria")
-    print(f"\n   Estadisticas de angulos en esta revolucion:")
+    print("   Rango de valores: 0.0 a 360.0 grados")
+    print("   Referencia: 0 = Frente del LIDAR, rotacion horaria")
+    print("\n   Estadisticas de angulos en esta revolucion:")
     print(f"     - Minimo: {min(angles):.2f}")
     print(f"     - Maximo: {max(angles):.2f}")
     print(f"     - Cobertura angular: {max(angles) - min(angles):.2f}")
-    
+
     # Verificar si la cobertura es completa
     coverage = max(angles) - min(angles)
     if coverage > 350:
-        print(f"     - Cobertura: COMPLETA (360)")
+        print("     - Cobertura: COMPLETA (360)")
     else:
         print(f"     - Cobertura: PARCIAL ({coverage:.1f})")
-    
+
     # =========================================================================
     # 4. CAMPO DISTANCE (Distancia)
     # =========================================================================
     print("\n4. CAMPO DISTANCE (Distancia en milimetros)")
     print("-" * 77)
-    
+
     all_distances = [p[2] for p in scan]
     valid_distances = [d for d in all_distances if d > 0]
     invalid_count = len([d for d in all_distances if d == 0])
-    
-    print(f"   Rango de valores: 0 a ~12000 mm (0 a 12 metros)")
-    print(f"   Valor 0: Sin medicion valida (objeto fuera de rango o transparente)")
-    print(f"\n   Estadisticas de distancia:")
+
+    print("   Rango de valores: 0 a ~12000 mm (0 a 12 metros)")
+    print("   Valor 0: Sin medicion valida (objeto fuera de rango o transparente)")
+    print("\n   Estadisticas de distancia:")
     print(f"     - Puntos validos (>0): {len(valid_distances)}")
     print(f"     - Puntos invalidos (=0): {invalid_count}")
-    
+
     if valid_distances:
         print(f"     - Distancia minima: {min(valid_distances):.1f} mm")
         print(f"     - Distancia maxima: {max(valid_distances):.1f} mm")
-        print(f"     - Distancia promedio: {sum(valid_distances)/len(valid_distances):.1f} mm")
-    
+        print(
+            "     - Distancia promedio:"
+            " {sum(valid_distances) / len(valid_distances):.1f} mm"
+        )
+
     # =========================================================================
     # 5. EJEMPLOS DE ACCESO A LOS DATOS
     # =========================================================================
@@ -152,7 +155,7 @@ def analyze_data_format(scan, scan_mode):
 def show_sample_points(scan, count=10):
     """
     Muestra una muestra de puntos para visualizar el formato.
-    
+
     Args:
         scan: Lista de tuplas (quality, angle, distance)
         count: Numero de puntos a mostrar
@@ -162,7 +165,7 @@ def show_sample_points(scan, count=10):
     print("=" * 77)
     print("\n  N  | Quality | Angle      | Distance    | Valido")
     print("-" * 77)
-    
+
     for i, (quality, angle, distance) in enumerate(scan[:count], 1):
         q_str = f"{quality:2d}" if quality is not None else "--"
         valid = "SI" if distance > 0 else "NO"
@@ -176,17 +179,17 @@ def main():
     print("=" * 77)
     print("TUTORIAL: ENTENDIENDO LOS DATOS DEL LIDAR")
     print("=" * 77)
-    
+
     # Cargar configuracion
     try:
         config = load_config()
     except ConfigError as e:
         print(f"\nError de configuracion: {e}")
         return
-    
+
     print(f"\nConexion: {config['host']}:{config['port']}")
     print(f"Modo de escaneo: {config['scan_mode']}")
-    
+
     # Crear cliente y conectar
     client = LidarClient(
         config["host"],
@@ -196,23 +199,23 @@ def main():
         retry_delay=config["retry_delay"],
         scan_mode=config["scan_mode"],
     )
-    
+
     try:
         print("\nConectando al servidor LIDAR...")
         client.connect_with_retry()
         print("Conectado correctamente")
-        
+
         # Obtener revolucion
         print("\nCapturando revolucion...")
         scan = client.get_scan()
         print(f"Revolucion recibida: {len(scan)} puntos")
-        
+
         # Analizar formato de datos
-        analyze_data_format(scan, config['scan_mode'])
-        
+        analyze_data_format(scan, config["scan_mode"])
+
         # Mostrar muestra de puntos
         show_sample_points(scan, count=10)
-        
+
         # Resumen final
         print("\n" + "=" * 77)
         print("RESUMEN")
@@ -225,18 +228,18 @@ def main():
    - angle: Direccion en grados (0-360)
    - distance: Distancia en milimetros (0 = invalido)
    
-   Modo {config['scan_mode']}:
+   Modo {config["scan_mode"]}:
      - Puntos por revolucion: ~{len(scan)}
-     - Calidad disponible: {'SI' if scan[0][0] is not None else 'NO'}
+     - Calidad disponible: {"SI" if scan[0][0] is not None else "NO"}
         """)
-        
+
         client.disconnect()
         print("\nTutorial completado con exito")
-    
+
     except KeyboardInterrupt:
         print("\n\nInterrupcion detectada")
         client.disconnect()
-    
+
     except Exception as e:
         print(f"\nError: {e}")
         client.disconnect()

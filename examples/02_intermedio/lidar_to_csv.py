@@ -29,7 +29,8 @@ CASOS DE USO PRACTICOS:
     - Documentacion de experimentos
 
 FORMATO DEL CSV:
-    Columnas: timestamp_iso, scan_mode, rev_index, point_index, angle_deg, distance_mm, quality
+    Columnas: timestamp_iso, scan_mode, rev_index, point_index, angle_deg, 
+            distance_mm, quality
     - Una fila por cada punto del LIDAR
     - Timestamp repetido para todos los puntos de la misma revolucion
     - Facil de agrupar/filtrar en pandas por revolucion o timestamp
@@ -47,7 +48,6 @@ from pathlib import Path
 
 from lidarclient import LidarClient
 from lidarclient.config import ConfigError, load_config
-
 
 # =============================================================================
 # DEFINICION DE COLUMNAS DEL CSV
@@ -90,55 +90,55 @@ CSV_COLUMNS = [
 def parse_args() -> argparse.Namespace:
     """
     Parsea argumentos de linea de comandos.
-    
+
     Argumentos soportados:
         --revs N: Numero de revoluciones a capturar (default: 3)
         --out PATH: Ruta del archivo CSV de salida (default: lidar_scans.csv)
-    
+
     Returns:
         Namespace con los argumentos parseados
-    
+
     Ejemplo de uso:
         python lidar_to_csv.py --revs 5 --out datos/experimento1.csv
     """
-    
+
     parser = argparse.ArgumentParser(
         description="Guardar datos LIDAR en CSV para analisis posterior."
     )
-    
+
     # =========================================================================
     # Argumento: Numero de Revoluciones
     # =========================================================================
     # Permite especificar cuantas revoluciones capturar.
     # Mas revoluciones = dataset mas grande, util para analisis estadistico.
-    
+
     parser.add_argument(
         "--revs",
         type=int,
         default=3,
         help="Numero de revoluciones a capturar (default: 3)",
     )
-    
+
     # =========================================================================
     # Argumento: Archivo de Salida
     # =========================================================================
     # Usa pathlib.Path para manejo de rutas multiplataforma (Windows/Linux/Mac).
     # Path automaticamente maneja separadores de directorio correctos.
-    
+
     parser.add_argument(
         "--out",
         type=Path,
         default=Path("lidar_scans.csv"),
         help="Ruta de salida del CSV (default: lidar_scans.csv)",
     )
-    
+
     return parser.parse_args()
 
 
 def main() -> int:
     """
     Funcion principal que ejecuta la captura y exportacion a CSV.
-    
+
     Flujo:
         1. Cargar configuracion desde config.ini
         2. Parsear argumentos de linea de comandos
@@ -147,7 +147,7 @@ def main() -> int:
         5. Capturar N revoluciones escribiendo cada punto como fila
         6. Mostrar resumen de filas escritas
         7. Retornar codigo de salida (0=exito, 1=error, 130=Ctrl+C)
-    
+
     Returns:
         Codigo de salida:
         - 0: Exito
@@ -155,7 +155,7 @@ def main() -> int:
         - 2: Error de configuracion o argumentos invalidos
         - 130: Interrumpido por usuario (Ctrl+C)
     """
-    
+
     # =========================================================================
     # PASO 1: Cargar Configuracion
     # =========================================================================
@@ -165,7 +165,7 @@ def main() -> int:
         print(f"Error de configuracion: {e}")
         print("Solucion: Verifica que config.ini existe y es valido")
         return 2
-    
+
     # =========================================================================
     # PASO 2: Crear Cliente LIDAR
     # =========================================================================
@@ -177,28 +177,28 @@ def main() -> int:
         retry_delay=config["retry_delay"],
         scan_mode=config["scan_mode"],
     )
-    
+
     # =========================================================================
     # PASO 3: Parsear Argumentos de Linea de Comandos
     # =========================================================================
     args = parse_args()
-    
+
     # Validar que el numero de revoluciones es positivo
     if args.revs <= 0:
         print("Error: --revs debe ser mayor que 0")
         print("Ejemplo: python lidar_to_csv.py --revs 5")
         return 2
-    
+
     # =========================================================================
     # PASO 4: Preparar Ruta de Salida
     # =========================================================================
     # Usamos pathlib.Path para manejo robusto de rutas.
     # mkdir(parents=True, exist_ok=True) crea directorios intermedios si no existen.
     # Ejemplo: si out_path es "datos/experimento1/scan.csv", crea "datos/experimento1/"
-    
+
     out_path = args.out
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     try:
         # =====================================================================
         # PASO 5: Conectar al Servidor LIDAR
@@ -207,23 +207,23 @@ def main() -> int:
         print(f"Conectando a {config['host']}:{config['port']}")
         print(f"Modo de escaneo: {config['scan_mode']}")
         print(f"Capturando {args.revs} revoluciones...\n")
-        
+
         # =====================================================================
         # PASO 6: Abrir Archivo CSV y Escribir Encabezados
         # =====================================================================
         # - newline="": Necesario en Windows para evitar lineas en blanco extra
         # - encoding="utf-8": Asegura compatibilidad internacional
         # - DictWriter: Permite escribir filas como diccionarios (mas legible)
-        
+
         with out_path.open("w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=CSV_COLUMNS)
-            
+
             # Escribir fila de encabezados (nombres de columnas)
             writer.writeheader()
-            
+
             # Contador de puntos totales escritos
             total_points = 0
-            
+
             # =================================================================
             # PASO 7: Bucle de Captura de Revoluciones
             # =================================================================
@@ -233,26 +233,27 @@ def main() -> int:
                 # -------------------------------------------------------------
                 # Usamos UTC (timezone.utc) para timestamps consistentes
                 # independientes de la zona horaria local.
-                # ISO 8601 es el formato estandar internacional: YYYY-MM-DDTHH:MM:SS.mmmmmm+00:00
+                # ISO 8601 es el formato estandar internacional: 
+                #       YYYY-MM-DDTHH:MM:SS.mmmmmm+00:00
                 #
                 # El timestamp se repite para TODOS los puntos de esta revolucion,
                 # permitiendo agrupar facilmente en analisis posterior:
                 # df.groupby('timestamp_iso') en pandas
-                
+
                 timestamp_iso = datetime.now(timezone.utc).isoformat()
-                
+
                 # -------------------------------------------------------------
                 # 7.2: Capturar Revolucion Completa
                 # -------------------------------------------------------------
                 scan = client.get_scan()
-                
+
                 # -------------------------------------------------------------
                 # 7.3: Escribir Cada Punto como una Fila en el CSV
                 # -------------------------------------------------------------
                 # Iteramos con enumerate para obtener el indice del punto.
                 # Cada punto se convierte en un diccionario que coincide
                 # con CSV_COLUMNS.
-                
+
                 for point_index, (quality, angle, distance) in enumerate(scan):
                     # ---------------------------------------------------------
                     # Manejo de Quality en Modo Express
@@ -263,7 +264,7 @@ def main() -> int:
                     #
                     # En pandas se puede convertir a NaN facilmente:
                     # df['quality'] = pd.to_numeric(df['quality'], errors='coerce')
-                    
+
                     row = {
                         "timestamp_iso": timestamp_iso,
                         "scan_mode": config["scan_mode"],
@@ -273,30 +274,30 @@ def main() -> int:
                         "distance_mm": distance,  # 0 = medicion invalida
                         "quality": "" if quality is None else quality,
                     }
-                    
+
                     # Escribir fila al CSV
                     writer.writerow(row)
-                
+
                 # Actualizar contador total
                 total_points += len(scan)
-                
+
                 # Mostrar progreso
                 print(f"  Rev {rev_index + 1}/{args.revs}: {len(scan)} puntos")
-        
+
         # =====================================================================
         # PASO 8: Mostrar Resumen Final
         # =====================================================================
         print(f"\nCSV guardado exitosamente en: {out_path.resolve()}")
         print(f"Total de filas (puntos): {total_points}")
         print(f"Total de revoluciones: {args.revs}")
-        print(f"\nPara analizar en pandas:")
-        print(f"  import pandas as pd")
+        print("\nPara analizar en pandas:")
+        print("  import pandas as pd")
         print(f"  df = pd.read_csv('{out_path}')")
-        print(f"  df['quality'] = pd.to_numeric(df['quality'], errors='coerce')")
-        print(f"  print(df.groupby('rev_index')['distance_mm'].describe())")
-        
+        print("  df['quality'] = pd.to_numeric(df['quality'], errors='coerce')")
+        print("  print(df.groupby('rev_index')['distance_mm'].describe())")
+
         return 0  # Codigo de exito
-    
+
     except KeyboardInterrupt:
         # =====================================================================
         # Manejo de Ctrl+C
@@ -304,7 +305,7 @@ def main() -> int:
         print("\n\nInterrumpido por el usuario")
         print("Archivo CSV puede estar incompleto")
         return 130  # Codigo estandar Unix para SIGINT (Ctrl+C)
-    
+
     except Exception as e:
         # =====================================================================
         # Manejo de Errores Generales
@@ -315,7 +316,7 @@ def main() -> int:
         print("  - Verifica permisos de escritura en el directorio de salida")
         print("  - Verifica espacio en disco disponible")
         return 1  # Codigo de error general
-    
+
     finally:
         # =====================================================================
         # Desconexion Limpia (Siempre se Ejecuta)

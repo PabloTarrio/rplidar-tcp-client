@@ -33,7 +33,7 @@ CASOS DE USO PRACTICOS:
 FORMATO JSONL vs JSON:
     JSON estandar:
         {"revolutions": [rev1, rev2, rev3]}  # Todo en memoria
-    
+
     JSONL (JSON Lines):
         {"rev": rev1}
         {"rev": rev2}
@@ -74,10 +74,10 @@ from pathlib import Path
 def iso_now():
     """
     Genera timestamp ISO 8601 en UTC.
-    
+
     Returns:
         String con formato: 2026-02-13T16:30:45.123456+00:00
-    
+
     Nota:
         Usamos UTC para timestamps consistentes independientes de zona horaria.
         ISO 8601 es el estandar internacional para fechas/horas.
@@ -88,7 +88,7 @@ def iso_now():
 def parse_args():
     """
     Parsea argumentos de linea de comandos.
-    
+
     Argumentos:
         --config PATH: Ruta a config.ini (default: config.ini)
         --out PATH: Archivo JSONL de salida (REQUERIDO)
@@ -96,130 +96,132 @@ def parse_args():
         --host IP: Override de host del config.ini
         --port N: Override de port del config.ini
         --mode MODE: Override de scan_mode del config.ini
-    
+
     Returns:
         Namespace con argumentos parseados
-    
+
     Ejemplos de uso:
         # Stream finito: 100 revoluciones
-        python streaming_lidar_to_jsonl.py --config config.ini --out data.jsonl --revs 100
-        
+        python streaming_lidar_to_jsonl.py --config config.ini --out data.jsonl 
+                --revs 100
+
         # Stream infinito hasta Ctrl+C
         python streaming_lidar_to_jsonl.py --config config.ini --out data.jsonl
-        
+
         # Override de configuracion
-        python streaming_lidar_to_jsonl.py --config config.ini --out data.jsonl --host 192.168.1.105 --mode express
+        python streaming_lidar_to_jsonl.py --config config.ini --out data.jsonl 
+                --host 192.168.1.105 --mode express
     """
-    
+
     parser = argparse.ArgumentParser(
         description="Stream continuo de revoluciones LIDAR a formato JSONL."
     )
-    
+
     parser.add_argument(
         "--config",
         default="config.ini",
         help="Path a config.ini (default: config.ini).",
     )
-    
+
     parser.add_argument(
         "--out",
         required=True,
         help="Ruta del archivo .jsonl de salida (REQUERIDO).",
     )
-    
+
     parser.add_argument(
         "--revs",
         type=int,
         default=None,
         help="Numero de revoluciones a capturar; si se omite, corre hasta Ctrl+C.",
     )
-    
+
     # Overrides opcionales de configuracion
     parser.add_argument(
         "--host",
         default=None,
         help="Override de host del config.ini [lidar] host.",
     )
-    
+
     parser.add_argument(
         "--port",
         type=int,
         default=None,
         help="Override de port del config.ini [lidar] port.",
     )
-    
+
     parser.add_argument(
         "--mode",
         default=None,
         help="Override de scan_mode del config.ini [lidar] scan_mode.",
     )
-    
+
     return parser.parse_args()
 
 
 def load_config_or_die(config_path: str) -> configparser.ConfigParser:
     """
     Carga config.ini o termina el programa si no existe/es invalido.
-    
+
     Args:
         config_path: Ruta al archivo config.ini
-    
+
     Returns:
         ConfigParser con la configuracion cargada
-    
+
     Raises:
         FileNotFoundError: Si config.ini no existe
         KeyError: Si falta la seccion [lidar]
     """
-    
+
     path = Path(config_path)
     if not path.is_file():
         msg = f"config.ini requerido y no encontrado: {path}"
         raise FileNotFoundError(msg)
-    
+
     cfg = configparser.ConfigParser()
     cfg.read(path, encoding="utf-8")
-    
+
     # Validar que existe la seccion [lidar]
     if "lidar" not in cfg:
         raise KeyError("Falta la seccion [lidar] en config.ini")
-    
+
     return cfg
 
 
 def resolve(cli_value, cfg_section, key: str, fallback):
     """
     Resuelve valor final con prioridad: CLI > config.ini > fallback.
-    
+
     Orden de prioridad:
         1. Valor de linea de comandos (--host, --port, --mode)
         2. Valor en config.ini [lidar]
         3. Valor por defecto (fallback)
-    
+
     Args:
         cli_value: Valor pasado por CLI (puede ser None)
         cfg_section: Seccion del ConfigParser
         key: Clave a buscar en la seccion
         fallback: Valor por defecto si no hay otro
-    
+
     Returns:
         Valor resuelto segun prioridad
-    
+
     Ejemplo:
         # CLI tiene prioridad sobre config.ini
         host = resolve(args.host, cfg['lidar'], 'host', '192.168.1.101')
     """
-    
+
     # Prioridad 1: Argumento de linea de comandos
     if cli_value is not None:
         return cli_value
-    
+
     # Prioridad 2: Valor en config.ini
     if cfg_section is not None:
         value = cfg_section.get(key, fallback="").strip()
         if value != "":
             return value
-    
+
     # Prioridad 3: Fallback por defecto
     return fallback
 
@@ -227,77 +229,77 @@ def resolve(cli_value, cfg_section, key: str, fallback):
 def recv_exact(sock: socket.socket, n: int) -> bytes:
     """
     Recibe exactamente N bytes del socket, bloqueando hasta completar.
-    
+
     Esta funcion es necesaria porque sock.recv(n) puede devolver MENOS
     de n bytes incluso si hay mas datos disponibles. Debemos llamar
     recv() en bucle hasta acumular exactamente n bytes.
-    
+
     Args:
         sock: Socket TCP conectado
         n: Numero exacto de bytes a recibir
-    
+
     Returns:
         Bytes recibidos (longitud exacta = n)
-    
+
     Raises:
         ConnectionError: Si el socket se cierra antes de recibir n bytes
-    
+
     Uso:
         # Protocolo: primero 4 bytes de longitud, luego payload
         header = recv_exact(sock, 4)
         size = int.from_bytes(header, 'big')
         data = recv_exact(sock, size)
     """
-    
+
     data = bytearray()
     while len(data) < n:
         # Intentar recibir los bytes restantes
         chunk = sock.recv(n - len(data))
-        
+
         # Si recv() devuelve vacio, el socket se cerro
         if not chunk:
             raise ConnectionError("Socket cerrado mientras se recibian datos")
-        
+
         data.extend(chunk)
-    
+
     return bytes(data)
 
 
 def recv_pickle_frame(sock: socket.socket):
     """
     Recibe un frame del protocolo del servidor LIDAR.
-    
+
     PROTOCOLO DEL SERVIDOR LIDAR:
         1. Enviar modo de escaneo: "STANDARD" o "EXPRESS" (UTF-8)
         2. Recibir frames en bucle:
            - 4 bytes: tamaño del payload (big-endian uint32)
            - N bytes: payload serializado con pickle
            - Deserializar payload -> lista de tuplas (quality, angle, distance)
-    
+
     Este protocolo usa pickle (serializacion binaria de Python) para
     enviar estructuras de datos complejas de forma eficiente.
-    
+
     Args:
         sock: Socket TCP conectado al servidor LIDAR
-    
+
     Returns:
         Lista de tuplas: [(quality, angle, distance), ...]
         - quality: int 0-15 o None
         - angle: float 0-360
         - distance: int en milimetros
-    
+
     Raises:
         ConnectionError: Si el socket se cierra inesperadamente
         pickle.UnpicklingError: Si el payload esta corrupto
     """
-    
+
     # Paso 1: Leer 4 bytes de header (tamaño del frame)
     header = recv_exact(sock, 4)
     size = int.from_bytes(header, byteorder="big")
-    
+
     # Paso 2: Leer exactamente 'size' bytes de payload
     payload = recv_exact(sock, size)
-    
+
     # Paso 3: Deserializar payload con pickle
     # El servidor envia la lista de mediciones serializada con pickle.dumps()
     return pickle.loads(payload)
@@ -306,7 +308,7 @@ def recv_pickle_frame(sock: socket.socket):
 def main():
     """
     Funcion principal que ejecuta el stream continuo a JSONL.
-    
+
     Flujo:
         1. Parsear argumentos y cargar configuracion
         2. Resolver valores finales (CLI > config > defaults)
@@ -318,21 +320,21 @@ def main():
            c. Construir objeto JSON de revolucion
            d. Escribir linea JSON al archivo + flush
         6. Cerrar socket y archivo al terminar/interrumpir
-    
+
     Diferencias con LidarClient:
         - Comunicacion TCP directa sin capa de abstraccion
         - Implementacion manual del protocolo pickle
         - Mayor control pero mas complejidad
         - Util para entender como funciona el servidor internamente
     """
-    
+
     # =========================================================================
     # PASO 1: Parsear Argumentos y Cargar Configuracion
     # =========================================================================
     args = parse_args()
     cfg = load_config_or_die(args.config)
     lidar = cfg["lidar"]
-    
+
     # =========================================================================
     # PASO 2: Resolver Valores Finales con Prioridades
     # =========================================================================
@@ -340,7 +342,7 @@ def main():
     host = resolve(args.host, lidar, "host", "192.168.1.101")
     port = int(resolve(args.port, lidar, "port", "5000"))
     mode = str(resolve(args.mode, lidar, "scan_mode", "express")).lower()
-    
+
     # =========================================================================
     # PASO 3: Preparar Metadatos de Sesion
     # =========================================================================
@@ -352,7 +354,7 @@ def main():
         "host": host,
         "port": port,
     }
-    
+
     # =========================================================================
     # PASO 4: Conectar Socket TCP al Servidor LIDAR
     # =========================================================================
@@ -360,27 +362,27 @@ def main():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect((host, port))
     print(f"Conectado a {host}:{port}", file=sys.stderr)
-    
+
     # =========================================================================
     # PASO 5: Enviar Modo de Escaneo al Servidor
     # =========================================================================
     # El servidor espera recibir "STANDARD" o "EXPRESS" (mayusculas) al inicio.
     # Normalizamos y validamos el modo antes de enviar.
-    
+
     mode_wire = mode.strip().upper()
     if mode_wire == "NORMAL":
         mode_wire = "STANDARD"  # Normalizar alias
     if mode_wire not in ("STANDARD", "EXPRESS"):
         mode_wire = "EXPRESS"  # Default si es invalido
-    
+
     sock.sendall(mode_wire.encode("utf-8"))
     print(f"Modo enviado: {mode_wire}", file=sys.stderr)
-    
+
     # =========================================================================
     # PASO 6: Bucle de Captura y Escritura JSONL
     # =========================================================================
     rev_index = 0
-    
+
     try:
         # Abrir archivo JSONL para escritura
         with open(args.out, "w", encoding="utf-8") as f:
@@ -390,35 +392,35 @@ def main():
                     # 6.1: Recibir Frame del Servidor (Revolucion Completa)
                     # ---------------------------------------------------------
                     scan_data = recv_pickle_frame(sock)
-                    
+
                     # ---------------------------------------------------------
                     # 6.2: Parsear y Validar Puntos
                     # ---------------------------------------------------------
                     # El servidor puede enviar datos mal formados o incompletos.
                     # Validamos cada punto antes de incluirlo.
-                    
+
                     points = []
                     for meas in scan_data:
                         # Verificar que es tupla/lista con al menos 3 elementos
                         if not isinstance(meas, (tuple, list)) or len(meas) < 3:
                             continue
-                        
+
                         quality, angle, dist = meas[0], meas[1], meas[2]
-                        
+
                         # Verificar que angle y distance no sean None
                         if angle is None or dist is None:
                             continue
-                        
+
                         # Convertir a tipos correctos con manejo de errores
                         try:
                             angle_f = float(angle)
                             dist_i = int(dist)
                         except (TypeError, ValueError):
                             continue
-                        
+
                         # Quality puede ser None (Express mode)
                         q = None if quality is None else int(quality)
-                        
+
                         # Añadir punto validado
                         points.append(
                             {
@@ -428,7 +430,7 @@ def main():
                                 "quality": q,
                             }
                         )
-                    
+
                     # ---------------------------------------------------------
                     # 6.3: Construir Objeto JSON de Revolucion
                     # ---------------------------------------------------------
@@ -437,14 +439,14 @@ def main():
                     # - rev_index: numero de revolucion
                     # - timestamp_iso: timestamp individual de esta revolucion
                     # - points: lista de puntos validados
-                    
+
                     rev = {
                         "meta": meta,
                         "rev_index": rev_index,
                         "timestamp_iso": iso_now(),
                         "points": points,
                     }
-                    
+
                     # ---------------------------------------------------------
                     # 6.4: Escribir Linea JSON + Flush
                     # ---------------------------------------------------------
@@ -455,7 +457,7 @@ def main():
                     #
                     # Flush es CRITICO: sin el, los datos quedan en buffer de
                     # memoria y se pierden si el programa se interrumpe.
-                    
+
                     f.write(
                         json.dumps(
                             rev,
@@ -465,25 +467,25 @@ def main():
                         + "\n"
                     )
                     f.flush()  # Persistencia inmediata
-                    
+
                     rev_index += 1
-                    
+
                     # ---------------------------------------------------------
                     # 6.5: Verificar Limite de Revoluciones
                     # ---------------------------------------------------------
                     if args.revs is not None and rev_index >= args.revs:
                         break  # Salir del bucle si alcanzamos el limite
-            
+
             except KeyboardInterrupt:
                 # Ctrl+C: salir limpiamente
                 print("\nInterrumpido por Ctrl+C, cerrando...", file=sys.stderr)
-    
+
     finally:
         # =====================================================================
         # PASO 7: Cerrar Socket (Siempre se Ejecuta)
         # =====================================================================
         sock.close()
-    
+
     # =========================================================================
     # PASO 8: Mostrar Resumen Final
     # =========================================================================
@@ -491,20 +493,23 @@ def main():
         f"OK: escritas {rev_index} revoluciones en {args.out}",
         file=sys.stderr,
     )
-    
-    print(f"\nPara procesar el JSONL:")
-    print(f"  # Contar revoluciones")
+
+    print("\nPara procesar el JSONL:")
+    print("  # Contar revoluciones")
     print(f"  wc -l {args.out}")
-    print(f"\n  # Ver primera revolucion")
+    print("\n  # Ver primera revolucion")
     print(f"  head -1 {args.out} | jq")
-    print(f"\n  # Extraer todas las distancias promedio")
-    print(f"  cat {args.out} | jq '.points[].distance_mm' | awk '{{sum+=$1; n++}} END {{print sum/n}}'")
-    print(f"\n  # Cargar en Python")
-    print(f"  import json")
+    print("\n  # Extraer todas las distancias promedio")
+    print(
+            f"  cat {args.out} | jq '.points[].distance_mm' | "
+            f"awk '{{sum+=$1; n++}} END {{print sum/n}}'"
+        )
+    print("\n  # Cargar en Python")
+    print("  import json")
     print(f"  with open('{args.out}') as f:")
-    print(f"      for line in f:")
-    print(f"          rev = json.loads(line)")
-    print(f"          print(rev['rev_index'], len(rev['points']))")
+    print("      for line in f:")
+    print("          rev = json.loads(line)")
+    print("          print(rev['rev_index'], len(rev['points']))")
 
 
 # =============================================================================

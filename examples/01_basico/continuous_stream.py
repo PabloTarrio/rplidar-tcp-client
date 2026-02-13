@@ -41,7 +41,7 @@ from lidarclient.config import ConfigError, load_config
 def main():
     """
     Funcion principal que captura revoluciones continuamente hasta Ctrl+C.
-    
+
     Flujo del programa:
         1. Cargar configuracion desde config.ini
         2. Crear y conectar cliente LIDAR
@@ -53,13 +53,13 @@ def main():
            - Pausa breve (100ms)
         4. Al presionar Ctrl+C: desconectar limpiamente y mostrar total
     """
-    
+
     # =========================================================================
     # PASO 1: Cargar Configuracion desde config.ini
     # =========================================================================
     # La configuracion contiene todos los parametros de conexion necesarios.
     # Si falla, mostramos error y salimos (no podemos continuar sin config).
-    
+
     try:
         config = load_config()
     except ConfigError as e:
@@ -69,13 +69,13 @@ def main():
         print("  2. Si no: cp config.ini.example config.ini")
         print("  3. Edita config.ini con la IP de tu LIDAR")
         return
-    
+
     # =========================================================================
     # PASO 2: Crear Cliente LIDAR con Parametros del Config
     # =========================================================================
     # El cliente maneja la comunicacion TCP, serializacion de datos,
     # timeouts y reintentos automaticos de conexion.
-    
+
     client = LidarClient(
         config["host"],
         port=config["port"],
@@ -84,7 +84,7 @@ def main():
         retry_delay=config["retry_delay"],
         scan_mode=config["scan_mode"],
     )
-    
+
     try:
         # =====================================================================
         # PASO 3: Conectar al Servidor con Reintentos Automaticos
@@ -92,54 +92,54 @@ def main():
         # connect_with_retry() intenta conectar varias veces (max_retries)
         # esperando retry_delay segundos entre intentos. Util si el servidor
         # tarda en arrancar o hay problemas temporales de red.
-        
+
         client.connect_with_retry()
         print("Conectado al servidor LIDAR")
         print(f"Servidor: {config['host']}:{config['port']}")
         print("Presiona Ctrl+C para detener\n")
-        
+
         # Contador de revoluciones procesadas (empieza en 0)
         revolution_count = 0
-        
+
         # =====================================================================
         # PASO 4: Bucle Infinito de Captura (while True)
         # =====================================================================
         # Este bucle continuara hasta que:
         # - El usuario presione Ctrl+C (KeyboardInterrupt)
         # - Ocurra un error irrecuperable
-        
+
         while True:
             # -----------------------------------------------------------------
             # 4.1: Obtener una Revolucion Completa
             # -----------------------------------------------------------------
             # get_scan() bloquea hasta recibir una revolucion completa (~0.1s)
             # Devuelve una lista de tuplas: [(quality, angle, distance), ...]
-            
+
             scan = client.get_scan()
             revolution_count += 1
-            
+
             # -----------------------------------------------------------------
             # 4.2: Filtrar Puntos Validos (distance > 0)
             # -----------------------------------------------------------------
             # Los puntos con distance=0 indican que el LIDAR no detecto
             # ningun objeto en esa direccion (fuera de rango o transparente).
             # Solo procesamos puntos con mediciones validas.
-            
+
             valid = [(q, a, d) for q, a, d in scan if d > 0]
-            
+
             # -----------------------------------------------------------------
             # 4.3: Calcular y Mostrar Estadisticas
             # -----------------------------------------------------------------
             # Mostramos estadisticas basicas en formato compacto (una linea)
             # para facilitar el monitoreo continuo sin saturar la terminal.
-            
+
             if valid:
                 # Extraer solo las distancias para calculos
                 distances = [d for _, _, d in valid]
-                
+
                 # Calcular media aritmetica de distancias
                 avg_dist = sum(distances) / len(distances)
-                
+
                 # Mostrar resumen en formato compacto
                 print(
                     f"Rev #{revolution_count:3d}: "
@@ -153,12 +153,12 @@ def main():
                 # Revolucion sin mediciones validas
                 # Posibles causas: area vacia, objetos fuera de rango
                 print(f"Rev #{revolution_count:3d}: Sin puntos validos")
-            
+
             # -----------------------------------------------------------------
             # 4.4: Pausa Breve entre Revoluciones
             # -----------------------------------------------------------------
             # time.sleep(0.1) pausa 100ms entre revoluciones.
-            # 
+            #
             # Razones para la pausa:
             # 1. Evitar saturar la CPU procesando revoluciones sin parar
             # 2. Dar tiempo al sistema operativo para otras tareas
@@ -167,9 +167,9 @@ def main():
             #
             # Nota: El LIDAR captura a ~5-10 Hz, asi que 100ms es razonable.
             # Si necesitas maxima frecuencia, puedes reducir o eliminar el sleep.
-            
+
             time.sleep(0.1)
-    
+
     except KeyboardInterrupt:
         # =====================================================================
         # PASO 5: Manejo de Ctrl+C (Interrupcion por Usuario)
@@ -177,10 +177,10 @@ def main():
         # KeyboardInterrupt se lanza cuando el usuario presiona Ctrl+C.
         # Capturamos la excepcion para desconectar limpiamente y mostrar
         # estadisticas finales antes de salir.
-        
+
         print("\n\nInterrupcion detectada por usuario.")
         print(f"Total revoluciones procesadas: {revolution_count}")
-        
+
     finally:
         # =====================================================================
         # PASO 6: Desconexion Limpia (Siempre se Ejecuta)
@@ -188,7 +188,7 @@ def main():
         # El bloque finally se ejecuta SIEMPRE, incluso si hay excepciones.
         # Garantiza que la conexion TCP se cierre correctamente, liberando
         # recursos y evitando conexiones colgadas en el servidor.
-        
+
         client.disconnect()
         print("Desconectado del servidor")
 

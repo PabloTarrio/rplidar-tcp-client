@@ -78,41 +78,41 @@ from lidarclient.config import ConfigError, load_config
 def parse_args() -> argparse.Namespace:
     """
     Parsea argumentos de linea de comandos.
-    
+
     Argumentos soportados:
         --revs N: Numero de revoluciones a capturar (default: 3)
         --out PATH: Ruta del archivo JSON de salida (default: lidar_scans.json)
         --indent N: Espacios de indentacion (default: 2, usa 0 para compacto)
-    
+
     Returns:
         Namespace con los argumentos parseados
-    
+
     Ejemplos de uso:
         # JSON indentado (legible)
         python lidar_to_json.py --revs 5 --out datos.json --indent 2
-        
+
         # JSON compacto (minimo tamaño)
         python lidar_to_json.py --revs 5 --out datos.json --indent 0
     """
-    
+
     parser = argparse.ArgumentParser(
         description="Guardar datos del LIDAR en formato JSON estructurado."
     )
-    
+
     parser.add_argument(
         "--revs",
         type=int,
         default=3,
         help="Numero de revoluciones a capturar (default: 3).",
     )
-    
+
     parser.add_argument(
         "--out",
         type=Path,
         default=Path("lidar_scans.json"),
         help="Ruta de salida del JSON (default: lidar_scans.json).",
     )
-    
+
     # =========================================================================
     # Argumento: Indentacion JSON
     # =========================================================================
@@ -123,21 +123,21 @@ def parse_args() -> argparse.Namespace:
     # - indent = 0: JSON compacto en una sola linea
     #   Ventaja: Archivos mas pequeños, carga mas rapida
     #   Desventaja: Ilegible para humanos
-    
+
     parser.add_argument(
         "--indent",
         type=int,
         default=2,
         help="Indentacion del JSON (default: 2). Usa 0 para compacto.",
     )
-    
+
     return parser.parse_args()
 
 
 def main() -> int:
     """
     Funcion principal que ejecuta la captura y exportacion a JSON.
-    
+
     Flujo:
         1. Cargar configuracion desde config.ini
         2. Parsear argumentos de linea de comandos
@@ -146,17 +146,17 @@ def main() -> int:
         5. Capturar N revoluciones, añadiendo cada una a la estructura
         6. Escribir JSON completo al archivo
         7. Mostrar resumen
-    
+
     Diferencia con CSV:
         - CSV: escritura incremental (fila por fila)
         - JSON: construccion en memoria, escritura unica al final
-        
+
         Implicacion: JSON requiere mas memoria para datasets grandes.
-    
+
     Returns:
         Codigo de salida (0=exito, 1=error, 2=config invalida, 130=Ctrl+C)
     """
-    
+
     # =========================================================================
     # PASO 1: Cargar Configuracion
     # =========================================================================
@@ -165,7 +165,7 @@ def main() -> int:
     except ConfigError as e:
         print(f"Error de configuracion: {e}")
         return 2
-    
+
     # =========================================================================
     # PASO 2: Crear Cliente LIDAR
     # =========================================================================
@@ -177,31 +177,31 @@ def main() -> int:
         retry_delay=config["retry_delay"],
         scan_mode=config["scan_mode"],
     )
-    
+
     # =========================================================================
     # PASO 3: Parsear Argumentos
     # =========================================================================
     args = parse_args()
-    
+
     if args.revs <= 0:
         print("Error: --revs debe ser mayor que 0")
         return 2
-    
+
     # =========================================================================
     # PASO 4: Preparar Ruta de Salida
     # =========================================================================
     out_path = args.out
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     # =========================================================================
     # PASO 5: Timestamp de Sesion (Para Metadatos)
     # =========================================================================
     # Este timestamp marca el inicio de la sesion de captura.
     # Es diferente de los timestamps individuales de cada revolucion.
     # Util para identificar cuando se realizo la captura completa.
-    
+
     session_timestamp = datetime.now(timezone.utc).isoformat()
-    
+
     # =========================================================================
     # PASO 6: Inicializar Estructura de Datos JSON
     # =========================================================================
@@ -213,7 +213,7 @@ def main() -> int:
     # - Contexto completo de la captura
     # - Agrupacion natural por revolucion
     # - Metadatos accesibles sin parsear todos los datos
-    
+
     data: dict = {
         "meta": {
             "timestamp_iso": session_timestamp,
@@ -223,7 +223,7 @@ def main() -> int:
         },
         "revolutions": [],
     }
-    
+
     try:
         # =====================================================================
         # PASO 7: Conectar al Servidor
@@ -232,9 +232,9 @@ def main() -> int:
         print(f"Conectado a {config['host']}:{config['port']}")
         print(f"Modo de escaneo: {config['scan_mode']}")
         print(f"Capturando {args.revs} revoluciones...\n")
-        
+
         total_points = 0
-        
+
         # =====================================================================
         # PASO 8: Bucle de Captura de Revoluciones
         # =====================================================================
@@ -244,21 +244,21 @@ def main() -> int:
             # -----------------------------------------------------------------
             # Cada revolucion tiene su propio timestamp, permitiendo
             # analisis temporal preciso entre revoluciones.
-            
+
             rev_timestamp = datetime.now(timezone.utc).isoformat()
-            
+
             # -----------------------------------------------------------------
             # 8.2: Capturar Revolucion
             # -----------------------------------------------------------------
             scan = client.get_scan()
-            
+
             # -----------------------------------------------------------------
             # 8.3: Construir Lista de Puntos
             # -----------------------------------------------------------------
             # Cada punto es un diccionario con sus atributos.
             # En JSON, quality=None se convierte automaticamente en null,
             # que es el valor correcto para "ausencia de valor" en JSON.
-            
+
             points = []
             for point_index, (quality, angle, distance) in enumerate(scan):
                 points.append(
@@ -269,7 +269,7 @@ def main() -> int:
                         "quality": quality,  # None -> null en JSON
                     }
                 )
-            
+
             # -----------------------------------------------------------------
             # 8.4: Añadir Revolucion a la Estructura Principal
             # -----------------------------------------------------------------
@@ -277,7 +277,7 @@ def main() -> int:
             # - rev_index: indice numerico
             # - timestamp_iso: marca temporal individual
             # - points: lista completa de puntos
-            
+
             data["revolutions"].append(
                 {
                     "rev_index": rev_index,
@@ -285,10 +285,10 @@ def main() -> int:
                     "points": points,
                 }
             )
-            
+
             total_points += len(scan)
             print(f"  Rev {rev_index + 1}/{args.revs}: {len(scan)} puntos")
-        
+
         # =====================================================================
         # PASO 9: Escribir JSON al Archivo
         # =====================================================================
@@ -297,43 +297,43 @@ def main() -> int:
         # - indent=N: JSON indentado con N espacios por nivel
         #
         # write_text(): escribe string al archivo en una sola operacion atomica
-        
+
         indent = None if args.indent == 0 else args.indent
         out_path.write_text(json.dumps(data, indent=indent), encoding="utf-8")
-        
+
         # =====================================================================
         # PASO 10: Mostrar Resumen
         # =====================================================================
         print(f"\nJSON guardado exitosamente en: {out_path.resolve()}")
         print(f"Total de revoluciones: {args.revs}")
         print(f"Total de puntos: {total_points}")
-        
+
         # Calcular tamaño del archivo
         file_size_kb = out_path.stat().st_size / 1024
         print(f"Tamaño del archivo: {file_size_kb:.2f} KB")
-        
-        print(f"\nPara cargar en Python:")
-        print(f"  import json")
+
+        print("\nPara cargar en Python:")
+        print("  import json")
         print(f"  with open('{out_path}') as f:")
-        print(f"      data = json.load(f)")
-        print(f"  print(data['meta'])")
-        print(f"  print(len(data['revolutions']))")
-        
-        print(f"\nPara inspeccionar con jq (CLI):")
+        print("      data = json.load(f)")
+        print("  print(data['meta'])")
+        print("  print(len(data['revolutions']))")
+
+        print("\nPara inspeccionar con jq (CLI):")
         print(f"  jq '.meta' {out_path}")
         print(f"  jq '.revolutions[0].points | length' {out_path}")
-        
+
         return 0
-    
+
     except KeyboardInterrupt:
         print("\n\nInterrumpido por usuario.")
         print("Archivo JSON no se creo (captura incompleta)")
         return 130
-    
+
     except Exception as e:
         print(f"\nError durante la captura: {e}")
         return 1
-    
+
     finally:
         client.disconnect()
 

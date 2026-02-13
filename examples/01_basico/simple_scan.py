@@ -29,10 +29,11 @@ PROXIMO PASO:
 from lidarclient import LidarClient
 from lidarclient.config import ConfigError, load_config
 
+
 def main():
     """
     Funcion principal que ejecuta un escaneo LIDAR simple.
-    
+
     Flujo:
         1. Cargar configuracion desde config.ini
         2. Conectar al servidor LIDAR con reintentos automaticos
@@ -40,7 +41,7 @@ def main():
         4. Analizar y mostrar estadisticas basicas
         5. Desconectar limpiamente
     """
-    
+
     # =========================================================================
     # PASO 1: Cargar Configuracion desde config.ini
     # =========================================================================
@@ -51,7 +52,7 @@ def main():
     # - max_retries: Numero de reintentos si falla la conexion
     # - retry_delay: Segundos entre reintentos
     # - scan_mode: Standard o Express
-    
+
     print("Cargando configuracion desde config.ini...")
     try:
         config = load_config()
@@ -62,18 +63,18 @@ def main():
         print("  2. Si no existe: cp config.ini.example config.ini")
         print("  3. Edita config.ini con la IP de tu LIDAR")
         return
-    
-    print(f"Configuracion cargada correctamente")
+
+    print("Configuracion cargada correctamente")
     print(f"  - Servidor: {config['host']}:{config['port']}")
     print(f"  - Modo: {config['scan_mode']}")
     print(f"  - Timeout: {config['timeout']}s")
-    
+
     # =========================================================================
     # PASO 2: Crear Cliente LIDAR
     # =========================================================================
     # El cliente maneja toda la comunicacion TCP con el servidor.
     # Se encarga de serializar/deserializar datos y manejar errores de red.
-    
+
     client = LidarClient(
         config["host"],
         port=config["port"],
@@ -82,7 +83,7 @@ def main():
         retry_delay=config["retry_delay"],
         scan_mode=config["scan_mode"],
     )
-    
+
     try:
         # =====================================================================
         # PASO 3: Conectar al Servidor con Reintentos Automaticos
@@ -90,11 +91,11 @@ def main():
         # connect_with_retry() intenta conectar varias veces (max_retries)
         # esperando retry_delay segundos entre intentos.
         # Esto es util si el servidor tarda en arrancar o hay problemas de red.
-        
+
         print("\nConectando al servidor LIDAR...")
         client.connect_with_retry()
         print(f"Conectado exitosamente a {config['host']}:{config['port']}")
-        
+
         # =====================================================================
         # PASO 4: Obtener una Revolucion Completa
         # =====================================================================
@@ -102,10 +103,10 @@ def main():
         # El tiempo de espera depende del modo:
         # - Standard: ~0.2s (360 puntos)
         # - Express: ~0.1s (720 puntos)
-        
+
         print("\nSolicitando revolucion...")
         scan = client.get_scan()
-        
+
         # =====================================================================
         # PASO 5: Analizar Datos Recibidos
         # =====================================================================
@@ -113,39 +114,39 @@ def main():
         # - quality: int (0-15) en Standard, None en Express
         # - angle: float (0-360) en grados
         # - distance: float en milimetros (0 = sin medicion valida)
-        
+
         print("\nRevolucion completa recibida")
         print(f"Total de puntos: {len(scan)}")
-        
+
         # Filtrar solo mediciones validas (distance > 0)
         # Los puntos con distance=0 indican que el LIDAR no detecto ningun objeto
         # en esa direccion (puede estar fuera de rango o ser transparente).
         valid_points = [point for point in scan if point[2] > 0]
         valid_percentage = (len(valid_points) / len(scan) * 100) if scan else 0
-        
+
         print(f"Puntos validos: {len(valid_points)} ({valid_percentage:.1f}%)")
-        
+
         # =====================================================================
         # PASO 6: Calcular Estadisticas Basicas
         # =====================================================================
-        
+
         if valid_points:
             # Extraer solo las distancias para calcular min/max
             distances = [d for _, _, d in valid_points]
-            
+
             min_dist = min(distances)
             max_dist = max(distances)
             avg_dist = sum(distances) / len(distances)
-            
-            print(f"\nEstadisticas de distancia:")
-            print(f"  Minima: {min_dist:.1f} mm ({min_dist/1000:.2f} m)")
-            print(f"  Maxima: {max_dist:.1f} mm ({max_dist/1000:.2f} m)")
-            print(f"  Promedio: {avg_dist:.1f} mm ({avg_dist/1000:.2f} m)")
-            
+
+            print("\nEstadisticas de distancia:")
+            print(f"  Minima: {min_dist:.1f} mm ({min_dist / 1000:.2f} m)")
+            print(f"  Maxima: {max_dist:.1f} mm ({max_dist / 1000:.2f} m)")
+            print(f"  Promedio: {avg_dist:.1f} mm ({avg_dist / 1000:.2f} m)")
+
             # ================================================================
             # PASO 7: Mostrar Primeros 5 Puntos (para entender el formato)
             # ================================================================
-            
+
             print("\nPrimeros 5 puntos validos:")
             for i, (quality, angle, distance) in enumerate(valid_points[:5], 1):
                 # Manejar calidad None en modo EXPRESS
@@ -157,33 +158,33 @@ def main():
                     f"Angulo {angle:6.2f}, "
                     f"Distancia {distance:7.2f} mm"
                 )
-            
+
             # Encontrar el objeto mas cercano
             closest = min(valid_points, key=lambda p: p[2])
-            print(f"\nObjeto mas cercano:")
-            print(f"  Distancia: {closest[2]:.1f} mm ({closest[2]/1000:.2f} m)")
+            print("\nObjeto mas cercano:")
+            print(f"  Distancia: {closest[2]:.1f} mm ({closest[2] / 1000:.2f} m)")
             print(f"  Angulo: {closest[1]:.1f}")
-            
+
         else:
             print("\nAdvertencia: No se detectaron objetos validos en esta revolucion.")
             print("Posibles causas:")
             print("  - El LIDAR esta apuntando a un area vacia")
             print("  - Los objetos estan fuera del rango de medicion (>12m)")
             print("  - Problema de conexion con el sensor")
-        
+
         # =====================================================================
         # PASO 8: Desconectar Limpiamente
         # =====================================================================
-        
+
         client.disconnect()
         print("\nDesconectado del servidor")
         print("Escaneo completado con exito")
-    
+
     except KeyboardInterrupt:
         print("\nInterrupcion detectada (Ctrl+C)")
         client.disconnect()
         print("Desconectado del servidor")
-    
+
     except Exception as e:
         print(f"\nError durante el escaneo: {e}")
         print("\nSoluciones posibles:")
@@ -197,7 +198,7 @@ def main():
 # =============================================================================
 # EJERCICIOS SUGERIDOS PARA PRACTICAR:
 # =============================================================================
-# 
+#
 # 1. BASICO: Modifica el codigo para mostrar tambien el objeto mas LEJANO
 #    Pista: Usa max() en lugar de min() sobre valid_points
 #
