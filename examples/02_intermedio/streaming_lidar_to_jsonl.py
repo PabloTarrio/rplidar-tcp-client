@@ -102,14 +102,14 @@ def parse_args():
 
     Ejemplos de uso:
         # Stream finito: 100 revoluciones
-        python streaming_lidar_to_jsonl.py --config config.ini --out data.jsonl 
+        python streaming_lidar_to_jsonl.py --config config.ini --out data.jsonl
                 --revs 100
 
         # Stream infinito hasta Ctrl+C
         python streaming_lidar_to_jsonl.py --config config.ini --out data.jsonl
 
         # Override de configuracion
-        python streaming_lidar_to_jsonl.py --config config.ini --out data.jsonl 
+        python streaming_lidar_to_jsonl.py --config config.ini --out data.jsonl
                 --host 192.168.1.105 --mode express
     """
 
@@ -501,9 +501,9 @@ def main():
     print(f"  head -1 {args.out} | jq")
     print("\n  # Extraer todas las distancias promedio")
     print(
-            f"  cat {args.out} | jq '.points[].distance_mm' | "
-            f"awk '{{sum+=$1; n++}} END {{print sum/n}}'"
-        )
+        f"  cat {args.out} | jq '.points[].distance_mm' | "
+        f"awk '{{sum+=$1; n++}} END {{print sum/n}}'"
+    )
     print("\n  # Cargar en Python")
     print("  import json")
     print(f"  with open('{args.out}') as f:")

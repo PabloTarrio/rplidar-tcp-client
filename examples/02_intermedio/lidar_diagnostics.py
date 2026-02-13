@@ -134,7 +134,7 @@ def analyze_scan(scan, mode_name):
         # Densidad = puntos por grado de rotacion
         # Util para comparar Standard (~1 punto/grado) vs Express (~2 puntos/grado)
         #
-        # Mayor densidad = mayor resolucion angular = mejor deteccion de objetos 
+        # Mayor densidad = mayor resolucion angular = mejor deteccion de objetos
         #       pequeños
 
         density = valid_points / angular_coverage if angular_coverage > 0 else 0

@@ -29,7 +29,7 @@ CASOS DE USO PRACTICOS:
     - Documentacion de experimentos
 
 FORMATO DEL CSV:
-    Columnas: timestamp_iso, scan_mode, rev_index, point_index, angle_deg, 
+    Columnas: timestamp_iso, scan_mode, rev_index, point_index, angle_deg,
             distance_mm, quality
     - Una fila por cada punto del LIDAR
     - Timestamp repetido para todos los puntos de la misma revolucion
@@ -233,7 +233,7 @@ def main() -> int:
                 # -------------------------------------------------------------
                 # Usamos UTC (timezone.utc) para timestamps consistentes
                 # independientes de la zona horaria local.
-                # ISO 8601 es el formato estandar internacional: 
+                # ISO 8601 es el formato estandar internacional:
                 #       YYYY-MM-DDTHH:MM:SS.mmmmmm+00:00
                 #
                 # El timestamp se repite para TODOS los puntos de esta revolucion,

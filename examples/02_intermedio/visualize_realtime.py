@@ -360,7 +360,7 @@ class LidarVisualizer:
         Nota sobre interval:
             - El LIDAR captura a ~5-10 Hz (revoluciones/segundo)
             - interval=100ms (10 FPS) es suficiente para mostrar todas las revoluciones
-            - Reducir interval no mejora la visualizacion (el LIDAR es el 
+            - Reducir interval no mejora la visualizacion (el LIDAR es el
                     cuello de botella)
 
         FuncAnimation parametros:
