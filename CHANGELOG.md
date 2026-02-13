@@ -2,7 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
----
+
+## [0.6.0] - 2026-02-13
+
+### Added
+- Scripts de guardado de datos del LIDAR
+  - `examples/lidar_to_csv.py`: Guardar una o varias revoluciones en formato CSV
+  - `examples/lidar_to_json.py`: Guardar una o varias revoluciones en formato JSON
+  - `examples/streaming_lidar_to_jsonl.py`: Stream continuo a JSONL (una revolución por línea)
+- Argumentos de línea de comandos para personalización
+  - `--config`: Path al archivo de configuración
+  - `--out`: Archivo de salida
+  - `--revs`: Número de revoluciones a capturar (omitir para modo continuo hasta Ctrl+C)
+  - `--indent`: Indentación del JSON (solo `lidar_to_json.py`)
+  - `--host`, `--port`, `--mode`: Override de parámetros de configuración
+- Documentación de los nuevos ejemplos
+  - Sección completa en `examples/README.md` con casos de uso
+  - Estructura del proyecto actualizada en `README.md`
+
 ## [0.5.0] - 2026-02-12
 
 ### Added
@@ -83,7 +100,7 @@ All notable changes to this project will be documented in this file.
   - Prevención del error "Too many bytes in the input buffer"
 - Compatibilidad hacia atrás: `connect()` sigue funcionando sin cambios
 
----
+
 
 ## [0.3.0] - 2026-02-09
 
@@ -103,7 +120,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - Prevención de corrupción de datos en transmisiones parciales
 
----
+
 
 ## [0.2.0] - 2026-02-05
 
@@ -126,7 +143,7 @@ All notable changes to this project will be documented in this file.
 - `src/create3_lidar_client` package (ROS 2 implementation)
 - Launch files and ROS 2 configuration
 
----
+-
 
 ## [0.0.1] - 2024-XX-XX
 
