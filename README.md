@@ -279,14 +279,21 @@ rplidar-tcp-client/
 |        |___ client.py
 |        |___ config.py          # Parser de configuración
 |___ examples/                   # Scripts de ejemplo
-|    |___ simple_scan.py
-|    |___ continuous_stream.py
-|    |___ print_scan_stub.py
-|    |___ visualize_realtime.py
-|    |___ lidar_diagnostics.py
-|    |___ lidar_to_csv.py
-|    |___ lidar_to_json.py
-|    |___ streaming_lidar_to_jsonl.py
+|___ 01_básico
+|       |___ simple_scan.py
+|       |___ continuous_stream.py
+|       |___ print_scan_stub.py
+|       |___ understanding_data.py
+|___ 02_intermedio
+|       |___ lidar_diagnostics.py
+|       |___ lidar_to_csv.py
+|       |___ lidar_to_json.py
+|       |___ streaming_lidar_to_jsonl.py
+|       |___ visualize_realtime.py
+|___ 03_avanzado
+|       |___ filter_by_quality.py
+|       |___ filter_by_distance.py
+|       |___ filter_by_angle.py   
 |___ server/                     # Código del servidor (Raspberry Pi)
 |___ tests/                      # Tests
 |___ docs/                       # Documentación adicional
