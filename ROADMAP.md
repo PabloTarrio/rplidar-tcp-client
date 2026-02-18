@@ -197,11 +197,6 @@ Actualmente no hay tareas en progreso.
 
 - [ ] Documentar formato de datos recibidos (estructura de las tuplas)
 
-### Integración con Repositorio Existente
-
-- [ ] Evaluar integración con `LIDAR_A1_RPI4` existente
-- [ ] Decidir si es independiente o complementario a ROS 2
-- [ ] Subir a repositorio organizado
 
 ### Funcionalidades Avanzadas
 
@@ -222,7 +217,6 @@ Actualmente no hay tareas en progreso.
 
 - Compresión de datos para reducir ancho de banda
 - Protocolo alternativo: WebSocket para visualización web
-- Integración con ROS 2: nodo bridge
 - API REST para consultas HTTP
 - Soporte para otros modelos de RPLIDAR (A2, A3, S1)
 
