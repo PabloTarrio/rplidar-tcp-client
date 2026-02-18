@@ -2,6 +2,66 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.0] - 2026-02-18
+
+### Added
+
+#### Ejemplos Avanzados de Filtrado (PRs #XX, #XX, #XX)
+- Nuevo directorio `examples/03_avanzado/` con scripts de filtrado de datos LIDAR
+- `filter_by_quality.py`: Filtrado por calidad de mediciones
+  - Umbral configurable de calidad mínima (default: 8)
+  - Histograma visual de distribución de calidades (0-15)
+  - Estadísticas de puntos buenos vs malos en tiempo real
+  - Compatible con modo Standard (quality disponible) y Express (quality=None)
+  - Función `filter_by_quality()` para clasificar puntos
+  - Función `analyze_quality_distribution()` para análisis estadístico
+  - Función `print_quality_histogram()` para visualización ASCII
+- `filter_by_distance.py`: Filtrado por rango de distancia
+  - Rango configurable [min_dist, max_dist] en milímetros
+  - Clasificación en 3 categorías: en rango, muy cerca, muy lejos
+  - Detección automática de punto más cercano (anti-colisión)
+  - Alerta visual para obstáculos críticos (< 30 cm)
+  - Análisis por zonas de seguridad cada 10 revoluciones
+  - Zonas: CRÍTICA (0-30cm), CERCANA (30cm-1m), MEDIA (1-3m), LEJANA (>3m)
+  - Función `filter_by_distance()` para clasificación por rango
+  - Función `find_closest_point()` para detección de colisiones
+  - Función `analyze_distance_zones()` para análisis multi-zona
+- `filter_by_angle.py`: Filtrado por sector angular
+  - Sector configurable [start, end] en grados (0-360°)
+  - Manejo correcto de sectores que cruzan 0° (ej: 350°-10°)
+  - Análisis multi-sector (FRENTE, DERECHA, ATRÁS, IZQUIERDA)
+  - Detección de punto más cercano dentro del sector
+  - Alerta visual para obstáculos frontales cercanos (< 50 cm)
+  - Distribución visual por sectores cada 10 revoluciones
+  - Función `normalize_angle()` para normalización angular
+  - Función `is_angle_in_sector()` con soporte para wrap-around
+  - Función `filter_by_angle()` para filtrado por sector simple
+  - Función `filter_by_multiple_sectors()` para análisis multi-sector
+
+#### Documentación Pedagógica Completa
+- Todos los scripts avanzados incluyen:
+  - Explicación detallada de conceptos (quality, distancia, ángulos)
+  - 4-5 casos de uso reales documentados por script
+  - 5 ejercicios sugeridos para estudiantes por script
+  - Comentarios paso a paso en el código
+  - Notas sobre diferencias entre modo Standard y Express
+- Actualización completa de `examples/README.md`
+  - Nueva sección "Nivel 3: Avanzado" con documentación de los 3 filtros
+  - Salidas esperadas de ejemplo para cada script
+  - Interpretación de valores y resultados
+  - Configuración de parámetros según aplicación
+  - Sección "Características comunes de ejemplos avanzados"
+- Actualización de `README.md` principal
+  - Estructura de carpetas actualizada con `03_avanzado/`
+  - Sección "Ejemplos por categoría" con Nivel 3 completo
+  - Referencias cruzadas mejoradas entre documentación
+
+### Changed
+- Código cumple con ruff (límite de 88 caracteres por línea)
+- Formato consistente en todos los ejemplos avanzados
+
+
+
 
 ## [0.6.0] - 2026-02-13
 

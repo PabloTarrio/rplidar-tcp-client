@@ -143,6 +143,44 @@ Documento vivo que refleja el estado actual y los próximos pasos del proyecto.
   - Ejemplos de uso en `examples/README.md`
   - Estructura del proyecto actualizada en `README.md`
 
+### Fase 11: Filtrado y Procesamiento Avanzado (Completado 2026-02-18)
+
+- [x] **Filtrado por calidad de mediciones**
+  - Script `examples/03_avanzado/filter_by_quality.py`
+  - Umbral configurable de calidad mínima (default: 8)
+  - Histograma visual de distribución de calidades (0-15)
+  - Estadísticas de puntos buenos vs malos en tiempo real
+  - Compatible con modo Standard (quality 0-15) y Express (quality=None)
+  - Funciones: `filter_by_quality()`, `analyze_quality_distribution()`, `print_quality_histogram()`
+- [x] **Filtrado por rango de distancia**
+  - Script `examples/03_avanzado/filter_by_distance.py`
+  - Rango configurable [min_dist, max_dist] en milímetros
+  - Clasificación en 3 categorías: en rango, muy cerca, muy lejos
+  - Detección automática de punto más cercano (anti-colisión)
+  - Alerta visual para obstáculos críticos (< 30 cm)
+  - Análisis por zonas de seguridad: CRÍTICA, CERCANA, MEDIA, LEJANA
+  - Funciones: `filter_by_distance()`, `find_closest_point()`, `analyze_distance_zones()`
+- [x] **Filtrado por sector angular**
+  - Script `examples/03_avanzado/filter_by_angle.py`
+  - Sector configurable [start, end] en grados (0-360°)
+  - Manejo correcto de sectores que cruzan 0° (ej: 350°-10°)
+  - Análisis multi-sector (FRENTE, DERECHA, ATRÁS, IZQUIERDA)
+  - Detección de punto más cercano dentro del sector
+  - Alerta visual para obstáculos frontales cercanos (< 50 cm)
+  - Funciones: `normalize_angle()`, `is_angle_in_sector()`, `filter_by_angle()`, `filter_by_multiple_sectors()`
+- [x] **Documentación pedagógica completa**
+  - Nueva carpeta `examples/03_avanzado/` con 3 scripts
+  - 4-5 casos de uso reales documentados por script
+  - 5 ejercicios sugeridos para estudiantes por script
+  - Comentarios paso a paso en el código
+  - Salidas esperadas de ejemplo
+  - Notas sobre diferencias Standard vs Express
+- [x] **Actualización de documentación**
+  - Sección completa "Nivel 3: Avanzado" en `examples/README.md`
+  - Estructura de carpetas actualizada en `README.md` principal
+  - Sección "Ejemplos por categoría" con 3 niveles
+  - Características comunes de ejemplos avanzados documentadas
+
 ---
 
 ## En Progreso
@@ -167,10 +205,6 @@ Actualmente no hay tareas en progreso.
 
 ### Funcionalidades Avanzadas
 
-- [ ] Filtros y procesamiento:
-  - [ ] Filtro por calidad mínima
-  - [ ] Filtro por rango de distancia
-  - [ ] Filtro por sector angular
 - [ ] Mútiples clientes:
   - [ ] Permitir varias conexiones simultáneas
   - [ ] Broadcasting de datos
@@ -196,7 +230,7 @@ Actualmente no hay tareas en progreso.
 
 ## Notas
 
-- **Fecha última actualización:** 2026-02-12
+- **Fecha última actualización:** 2026-02-18
 - **Responsable:** Pablo Tarrio
 - **Repositorio:** rplidar-tcp-client
 - **Hardware:** Raspberry Pi 4 + RPLIDAR A1
