@@ -241,10 +241,10 @@ with LidarClient(
 
 **Ideal para**: Debugging, análisis de rendimiento, crear datasets
 
-#### Nivel Avanzado (Próximamente)
-- Filtrado por distancia, ángulo y calidad
-- Detección de obstáculos por sectores
-- Integración con frameworks de robótica
+#### Nivel Avanzado (Filtrado y Procesamiento)
+- `filter_by_quality.py` - Filtrado por calidad de medición (0-15), con histograma
+- `filter_by_distance.py` - Filtrado por rango de distancia, zonas de seguridad
+- `filter_by_angle.py` - Filtrado por sector angular, análisis multi-sector
 
 **Ideal para**: Implementar algoritmos, proyectos de investigación
 
@@ -272,31 +272,34 @@ Consulta [examples/README.md](/examples/README.md) para más detalles sobre cada
 ## Estructura del proyecto
 ```text
 rplidar-tcp-client/
-|___ config.ini.example          # Plantilla de configuración
+|___ config.ini.example             # Plantilla de configuración
 |___ src/
 |    |___lidarclient/
 |        |___ __init__.py
 |        |___ client.py
-|        |___ config.py          # Parser de configuración
-|___ examples/                   # Scripts de ejemplo
-|___ 01_básico
+|        |___ config.py             # Parser de configuración
+|___ examples/                      # Scripts de ejemplo
+|___ 01_básico                      # Ejemplos fundamentales
 |       |___ simple_scan.py
 |       |___ continuous_stream.py
 |       |___ print_scan_stub.py
 |       |___ understanding_data.py
-|___ 02_intermedio
+|___ 02_intermedio                  # Análisis y exportación
 |       |___ lidar_diagnostics.py
 |       |___ lidar_to_csv.py
 |       |___ lidar_to_json.py
 |       |___ streaming_lidar_to_jsonl.py
 |       |___ visualize_realtime.py
-|___ 03_avanzado
+|___ 03_avanzado                    # Filtrado y procesamiento
 |       |___ filter_by_quality.py
 |       |___ filter_by_distance.py
 |       |___ filter_by_angle.py   
-|___ server/                     # Código del servidor (Raspberry Pi)
-|___ tests/                      # Tests
-|___ docs/                       # Documentación adicional
+|___ README.md                      # Documentación detallada de cada ejemplo
+|___ server/                     
+|___ |___servidor_lidar_tcp.py      # Código del servidor (Raspberry Pi)
+|___ |___README.md                  # Documentación servidor
+|___ tests/                         # Tests
+|___ docs/                          # Documentación adicional
 ```
 
 ## Formato de Datos del LIDAR

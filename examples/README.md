@@ -1038,6 +1038,474 @@ cat stream.jsonl | jq '.points[].distance_mm' | awk '{sum+=$1; n++} END {print s
 
 >**Nota importante:** Este script usa flush() después de cada línea para garantizar que los >datos se escriban inmediatamente al disco. Sin esto, los datos quedarían >en buffer y se perderían si el programa se interrumpe.
 
+### Nivel 3: Avanzado (carpet `03_avanzado/`)
+
+Scripts avanzados que demuestran técnicas de filtrado y procesamiento de datos LIDAR.
+
+#### 10. `filter_by_quality` - Filtrado de mediciones por calidad
+
+**Qué hace:**
+
+Filtra puntos del LIDAR según su valor de `quality` (0-15), que represetna la confianza del sensor en cada medición. Muestra histograma de distribución de calidades cada 10 revoluciones.
+
+**Ideal para:**
+
+* Navegación autónoma: Filtrar puntos con baja confianza para evitar falsos positivos.
+* Mapeo de precisión: Usar solo puntos con baja confianza para evitar falsos positivos.
+* Análisis de superficies: Estudiar la distribución de calidades por material.
+* Debugging: Identificar zonas problemáticas del entorno.
+
+**Uso:**
+
+```bash
+python examples/03_avanzado/filter_by_quality.py
+```
+
+**Salida esperada:**
+
+```text
+======================================================================
+FILTRADO POR CALIDAD - RPLIDAR A1
+======================================================================
+Servidor: 192.168.1.103:5000
+Modo de escaneo: standard
+Umbral de calidad: >= 8
+
+Presiona Ctrl+C para detener
+======================================================================
+
+Conectado a 192.168.1.103:5000
+
+Rev #  1
+  Total:       166 puntos
+  Buenos:      160 puntos ( 96.4%) - Quality >= 8
+  Malos:         6 puntos (  3.6%) - Quality < 8 o distancia = 0
+
+  Distancias (solo puntos buenos):
+    Minima:    344.5 mm (0.34 m)
+    Maxima:   5117.8 mm (5.12 m)
+    Promedio: 1539.5 mm (1.54 m)
+
+[... revoluciones 2-9 ...]
+
+======================================================================
+ANALISIS DE CALIDAD - Revolución 10
+======================================================================
+
+Modo detectado: STANDARD
+   Total de puntos: 166
+   Puntos validos (distancia > 0): 166
+
+   Histograma de Calidades:
+   ==================================================
+   Q 0  [   2] █  1.2%
+   Q 1  [   0]  0.0%
+   Q 2  [   0]  0.0%
+   Q 3  [   2] █  1.2%
+   Q 4  [   0]  0.0%
+   Q 5  [   0]  0.0%
+   Q 6  [   2] █  1.2%
+   Q 7  [   0]  0.0%
+   Q 8  [   2] █  1.2%
+   Q 9  [   0]  0.0%
+   Q10  [   0]  0.0%
+   Q11  [   3] █  1.8%
+   Q12  [   2] █  1.2%
+   Q13  [   0]  0.0%
+   Q14  [   2] █  1.2%
+   Q15  [ 151] ████████████████████████████████████████ 91.0%
+======================================================================
+```
+
+**Características:**
+
+* Umbral configurable de calidad mínima (`MIN_QUALITY`, por defecto: 8)
+
+* Histograma visual de distribución de calidades (0-15) cada 10 revoluciones
+
+* Estadísticas de untos buenos vs malos en tiempo real
+
+* Compatible con modo Standard (quality disponible) y Express (Quality= None)
+
+* Análisis detallado de calidad de superficie
+
+**Conceptos que aprendes:**
+
+* Qué significa el campo `queality` del RPLIDAR A1
+
+* Diferencia de datos de calidad entre modo Standard (0-15) y Express (None)
+
+* Cómo filtrar mediciones según confianza del sensor
+
+* Interpretación de valores de calidad según tipo de superficie
+
+* Visualización de distribuciones con histogramas ASCII
+
+**Interpretación de los valores de quality:**
+
+* 0: Sin medición válida o muy baja confianza
+
+* 1-5: Calidad baja (superficies reflectantes, ángulos oblicuos)
+
+* 6-10: Calidad media (condiciones normales)
+
+* 11-15: Calidad alta (superficies perpendiculares, buena reflectividad)
+
+**Configuración del umbral:**
+
+Puedes modificar `MIN_QUALITY` en el script según tu aplicación:
+
+* `MIN_QUALITY` = 5: Filtrado suave (descarta solo lo peor)
+
+* `MIN_QUALITY` = 8: Filtrado medio (recomendado para navegación) <- DEFAULT
+
+* `MIN_QUALITY` = 10: Filtrado estricto (solo calidad alta)
+
+**Ejercicios sugeridos:**
+
+1. Modifica MIN_QUALITY y observa cómo cambia el porcentaje de puntos válidos
+
+2. Crea un histograma que muestre la distribución de calidades (0-15)
+
+3. Compara el mismo entorno en modo Standard vs Express
+
+4. Guarda solo puntos de alta calidad en un archivo CSV
+
+5.0 Detecta objetos que generan consistentemente baja calidad
+
+> Nota sobre modo Express: En modo Express, el campo quality es None para maximizar la velocidad de captura (~720 puntos/revolución vs ~360 en Standard). El script maneja esto automáticamente considerando todos los puntos con distancia > 0 como válidos.
+
+#### 11. `filter_by_distance.py` - Filtrado por rango de distancia
+
+**Qué hace:**
+
+Filtra puntos del LIDAR según su distancia, permitiendo definir un rango mínimo y máximo de detección. Clasifica puntos en zonas de seguridad y detecta el punto más cercano (crítico para anti-colisión).
+
+**Ideal para:**
+
+* Navegación autónoma: Detectar solo obstáculos cercanos (0.2m - 3m)
+
+* Mapeo de habitación: Ignorar objetos muy cercanos o muy lejanos
+
+* Detección de personas: Filtrar rango típico de altura (0.5m - 2m)
+
+* Zona de seguridad: Alertar si hay objetos a menos de X metros
+
+* Anti-colisión: Monitorizar solo zona crítica (< 0.5m)
+
+**Uso:**
+
+```bash
+python examples/03_avanzado/filter_by_distance.py
+```
+
+**Salida esperada:**
+
+```text
+======================================================================
+FILTRADO POR DISTANCIA - RPLIDAR A1
+======================================================================
+Servidor: 192.168.1.103:5000
+Modo de escaneo: express
+Rango de distancia: 200 mm - 5000 mm
+                    (0.20 m - 5.00 m)
+
+Presiona Ctrl+C para detener
+======================================================================
+
+Conectado a 192.168.1.103:5000
+
+Rev #  1
+  Total:          346 puntos
+  En rango:       290 puntos
+  Muy cerca:       12 puntos (< 200 mm)
+  Muy lejos:       44 puntos (> 5000 mm)
+  Invalidos (0):    0 puntos
+
+  Punto mas cercano:
+    Distancia:  185.5 mm (0.186 m)
+    Angulo:      45.3 grados
+
+  Estadisticas del rango objetivo:
+    Minima:    200.0 mm (0.20 m)
+    Maxima:   4987.5 mm (4.99 m)
+    Promedio: 1523.8 mm (1.52 m)
+
+[... revoluciones 2-9 ...]
+
+======================================================================
+ANALISIS DE ZONAS - Revolucion 10
+======================================================================
+
+  Distribucion por zonas de seguridad:
+    CRITICA  [  15] ████  4.3%
+             (    0 - 300 mm)
+    CERCANA  [  98] ███████████████████████████  28.3%
+             (  300 - 1000 mm)
+    MEDIA    [ 187] ██████████████████████████████████████████ 54.0%
+             ( 1000 - 3000 mm)
+    LEJANA   [  46] ████████████  13.3%
+             ( 3000 - 12000 mm)
+======================================================================
+```
+**Características:**
+
+* Rango configurable [MIN_DIST, MAX_DIST] en milímetros
+
+* Clasificación en 3 categorías: en rango, muy cerca, muy lejos
+
+* Detecta punto más cercano en cada revolución con ángulo
+
+* Alerta visual si hay obstáculos críticos (< 30 cm)
+
+* Análisis por zonas de seguridad cada 10 revoluciones
+
+* Zonas: CRÍTICA (0-30cm), CERCANA (30cm-1m), MEDIA (1-3m), LEJANA (>3m)
+
+**Conceptos que aprendes:**
+
+* Rangos de medición del RPLIDAR A1 (0.15m - 12m)
+
+* Significado de distance = 0 (sin medición válida)
+
+* Clasificación de zonas de seguridad para navegación
+
+* Detección del punto más cercano (anti-colisión)
+
+* Análisis de distribución espacial del entorno
+
+**Configuración del rango:**
+
+Puedes modificar `MIN_DIST` y `MAX_DIST` según tu aplicación:
+
+```python
+# Para navegación autónoma:
+MIN_DIST = 200   # 20 cm - evita ruido del propio robot
+MAX_DIST = 3000  # 3 m - rango de reacción
+
+# Para mapeo de habitación:
+MIN_DIST = 150   # 15 cm - mínimo del sensor
+MAX_DIST = 8000  # 8 m - paredes lejanas
+
+# Para detección de personas cercanas:
+MIN_DIST = 500   # 50 cm - distancia de seguridad
+MAX_DIST = 2000  # 2 m - rango de interacción
+```
+
+**Zonas de seguridad:**
+
+* El script analiza 4 zonas de distancia:
+
+  * CRÍTICA (0-300mm): ¡ALERTA ROJA! Riesgo de colisión inmediato
+
+  * CERCANA (300-1000mm): Precaución - Objeto cerca
+
+  * MEDIA (1000-3000mm): Normal - Objeto a distancia segura
+
+  * LEJANA (>3000mm): Informativa - Entorno lejano
+
+**Ejercicios sugeridos:**
+
+1. Modifica MIN_DIST y MAX_DIST para detectar solo objetos cercanos
+
+2. Crea una alerta visual cuando hay objetos a menos de 30 cm
+
+3. Calcula el porcentaje de cobertura en diferentes rangos de distancia
+
+4. Detecta el punto más cercano y su ángulo en cada revolución
+
+5. Guarda en CSV solo puntos dentro de un rango específico
+
+> Alerta automática: Si el punto más cercano está a menos de 300mm (30cm), el script muestra `>>> ALERTA: OBSTACULO CRITICO! <<<` para aplicaciones de anti-colisión.
+
+#### 12. `filter_by_angle.py` - Filtrado por sector angular
+
+**Qué hace:**
+
+Filtra puntos del LIDAR según su ángulo, permitiendo definir sectores específicos de interés. Analiza múltiples sectores simultáneamente (FRENTE, DERECHA, ATRÁS, IZQUIERDA) y detecta obstáculos direccionales.
+
+**Ideal para:**
+
+* Navegación direccional: Detectar solo obstáculos al frente (330°-30°)
+
+* Visión lateral: Monitorizar solo los lados (80°-100° y 260°-280°)
+
+* Detección trasera: Alertar de obstáculos atrás (160°-200°)
+
+* Campo de visión: Simular sensor con ángulo limitado (ejemplo: 180°)
+
+* Zonas ciegas: Ignorar sectores bloqueados por la estructura del robot
+
+**Uso:**
+
+```bash
+python examples/03_avanzado/filter_by_angle.py
+```
+
+**Salida esperada:**
+
+```text
+======================================================================
+FILTRADO POR ANGULO - RPLIDAR A1
+======================================================================
+Servidor: 192.168.1.103:5000
+Modo de escaneo: express
+Sector principal: 330° - 30°
+Amplitud del sector: 60°
+
+Presiona Ctrl+C para detener
+======================================================================
+
+Conectado a 192.168.1.103:5000
+
+Rev #  1
+  Total validos:    346 puntos
+  En sector:         58 puntos ( 16.8%)
+  Fuera de sector:  288 puntos
+
+  Punto mas cercano en sector [330°-30°]:
+    Distancia:  345.2 mm (0.345 m)
+    Angulo:       5.3°
+
+  Estadisticas del sector:
+    Dist. minima:   345.2 mm (0.35 m)
+    Dist. maxima:  4521.8 mm (4.52 m)
+    Dist. promedio: 1487.3 mm (1.49 m)
+
+[... revoluciones 2-9 ...]
+
+======================================================================
+ANALISIS MULTI-SECTOR - Revolucion 10
+======================================================================
+
+  Distribucion por sectores:
+    FRENTE     [  58] ████████████████  16.8%
+                (330° - 30°)
+                Mas cercano: 345 mm
+    DERECHA    [  87] ████████████████████████  25.1%
+                ( 60° - 120°)
+                Mas cercano: 892 mm
+    ATRAS      [  61] █████████████████  17.6%
+                (150° - 210°)
+                Mas cercano: 2134 mm
+    IZQUIERDA  [  85] ███████████████████████  24.6%
+                (240° - 300°)
+                Mas cercano: 1023 mm
+
+    Sin clasificar: 55 puntos (fuera de todos los sectores)
+======================================================================
+```
+
+**Características:**
+
+* Sector configurable [SECTOR_START, SECTOR_END] en grados (0-360°)
+
+* Maneja correctamente sectores que cruzan 0° (ejemplo: 350°-10°)
+
+* Análisis multi-sector (FRENTE, DERECHA, ATRÁS, IZQUIERDA)
+
+* Detecta punto más cercano dentro del sector
+
+* Alerta visual si hay obstáculos frontales cercanos (< 50 cm)
+
+* Distribución visual por sectores cada 10 revoluciones
+
+**Sistema de coordenadas del RPLIDAR A1:**
+
+```text
+        0° (Frente)
+         ↑
+         |
+270° ←---+---→ 90°
+         |
+         ↓
+       180° (Atrás)
+```
+
+* 0°: Frente del LIDAR (marca roja del sensor)
+
+* 90°: Derecha del LIDAR
+
+* 180°: Atrás del LIDAR
+
+* 270°: Izquierda del LIDAR
+
+* Rotación: Sentido horario (visto desde arriba)
+
+**Conceptos que aprendes:**
+
+* Sistema de coordenadas polares del RPLIDAR
+
+* Manejo de sectores que cruzan 0° (wrap-around)
+
+* Normalización de ángulos al rango [0, 360)
+
+* Clasificación de puntos en múltiples sectores
+
+* Navegación direccional y campos de visión limitados
+
+**Configuración de sectores:**
+
+Puedes modificar `SECTOR_START` y `SECTOR_END` según tu aplicación:
+
+```python
+# Para navegación frontal (60° de campo):
+SECTOR_START = 330  # 30° a la izquierda
+SECTOR_END = 30     # 30° a la derecha
+
+# Para visión hemisférica frontal (180°):
+SECTOR_START = 270  # izquierda
+SECTOR_END = 90     # derecha
+
+# Para detección trasera:
+SECTOR_START = 150
+SECTOR_END = 210
+```
+
+**Sectores multi-direccionales:**
+
+El script analiza automáticamente 4 sectores cada 10 revoluciones:
+
+* FRENTE (330°-30°): ±30° del frente, navegación primaria
+
+* DERECHA (60°-120°): Lateral derecho, obstáculos laterales
+
+* ATRÁS (150°-210°): Parte trasera, retroceso seguro
+
+* IZQUIERDA (240°-300°): Lateral izquierdo, maniobras
+
+**Ejercicios sugeridos:**
+
+1. Modifica FRONT_SECTOR para cambiar el campo de visión frontal
+
+2. Define múltiples sectores y cuenta puntos en cada uno
+
+3. Detecta el punto más cercano solo en el sector frontal
+
+4. Crea una alerta si hay obstáculos en los laterales
+
+5. Simula un sensor de visión limitada (90° o 180°)
+
+>Nota sobre sectores que cruzan 0°: El script maneja correctamente sectores como 350°-10° (que cruza 0°) usando lógica especial de normalización de ángulos. Por ejemplo, el sector frontal 330°-30° incluye ángulos [330, 331, ..., 359, 0, 1, ..., 29, 30].
+
+### Características comunes de ejemplos avanzados
+
+Todos los scripts avanzados comparten:
+
+* Documentación pedagógica: Explicaciones detalladas de conceptos
+
+* Ejercicios sugeridos: 5 ejercicios por script para práctica
+
+* Casos de uso reales: Aplicaciones prácticas documentadas
+
+* Compatible con ambos modos: Standard y Express
+
+* Análisis detallado: Estadísticas cada 10 revoluciones
+
+* Código educativo: Comentarios paso a paso
+
+* Cumple con ruff: Límite de 88 caracteres por línea
+
 ## Formato de datos del LIDAR
 
 Todas las revoluciones se devuelven como una lista de tuplas:
