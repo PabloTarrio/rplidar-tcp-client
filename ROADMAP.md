@@ -181,7 +181,8 @@ Documento vivo que refleja el estado actual y los próximos pasos del proyecto.
   - Estructura de carpetas actualizada en `README.md` principal
   - Sección "Ejemplos por categoría" con 3 niveles
   - Características comunes de ejemplos avanzados documentadas
-  - Badges adicionales en README: Release version, Last commit 
+  - Badges adicionales en README: Release version, Last commit
+  - Documentar formato de datos recibidos (estructura de las tuplas) 
 
 ---
 
@@ -194,9 +195,6 @@ Actualmente no hay tareas en progreso.
 ## Pendiente
 
 ### Documentación y Consolidación
-
-- [ ] Documentar formato de datos recibidos (estructura de las tuplas)
-
 
 ### Funcionalidades Avanzadas
 

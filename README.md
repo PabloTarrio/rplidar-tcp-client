@@ -302,123 +302,32 @@ rplidar-tcp-client/
 |___ |___README.md                  # Documentación servidor
 |___ tests/                         # Tests
 |___ docs/                          # Documentación adicional
+|___ |___DATA_FORMAT.md             
 ```
 
 ## Formato de Datos del LIDAR
 
 ### Estructura de una Revolución
 
-Cada revolución es una **lista de tuplas** con 3 elementos:
+El servidor TCP envía cada revolución del RPLIDAR como una lista de tuplas de la forma:
 
 ```python
 scan = [
     (quality, angle, distance),
     (quality, angle, distance),
     ...
-]
+] 
 ```
-### Modo Standard vs Express
+donde:
 
-```python
-(quality, angle, distance)
-```
+* `quality` es un `int` 0-15 (modo Standard) o `None` (modo Express)
+* `angle` es un `float` en grados (0.0 - 359.99)
+* `distance` es un `float` en milímetros
+### Documentación detallada
 
-* quality: `int` (0-15) - Nivel de confianza de la medición
+La documentación detallada del formato de datos, diferencias entre modos Standard y Express, ejemplos de filtrado y casos especiales está en:
 
-    * `0` =  Baja confianza
-    * `15` = máxima confianza
-    * Útil para filtrar mediciones ruidosas
-
-* angle: `float` (0-360) - Ángulo en grados
-    
-    * 0º = Frente al LIDAR
-    * Rotación horaria
-
-* distance: `float`- Distancia en milimetros
-
-    * `0`= Medición inválida (sin obstáculo detectado)
-    * Rango típico: 150mm - 12000mm (0.15m-12m)
-
-#### Ejemplo
-
-```python
-(15, 90.5, 1250.3)  # Alta calidad, 90.5°, 1.25 metros
-```
-
-### Modo Express (720 puntos/revolución)
-
-```python
-(None, angle, distance)
-```
-
-* quality: `None` - No disponible en modo Express
-* angle: `float` (0-360) - Ángulo en grados
-* distance: `float` - Distancia en milimetros
-
-#### Ejemplo
-
-```python
-(None, 90.5, 1250.3)  # Sin calidad, 90.5°, 1.25 metros
-```
-
-### Procesar los Datos
-
-#### Filtar Mediciones Válidas
-
-```python
-# Obtener solo puntos con medición válida
-valid_points = [(q, a, d) for q, a, d in scan if d > 0]
-```
-
-#### Trabajar con Calidad (solo Standard)
-
-```python
-# Verificar si estamos en modo Standard
-if scan is not None:
-    # Filtrar por calidad mínima
-    high_quality = [(q, a, d) for q, a, d in scan if q is not None and q >= 10]
-else:
-    print("Modo Express: calidad no disponible")
-```
-
-#### Convertir unidades
-
-```python
-# De milímetros a metros
-distances_m = [d / 1000.0 for q, a, d in scan if d > 0]
-
-# De grados a radianes
-import math
-angles_rad = [math.radians(a) for q, a, d in scan if d > 0]
-```
-
-#### Ejemplo completo
-
-```python
-from lidar_client import LidarClient
-from lidar_client.config import load_config
-
-config = load_config()
-
-with LidarClient(config['host'], port=config['port'], 
-                 scan_mode=config['scan_mode']) as client:
-    scan = client.get_scan()
-    
-    # Análisis básico
-    total_points = len(scan)
-    valid_points = [p for p in scan if p[2] > 0]
-    
-    print(f"Total de puntos: {total_points}")
-    print(f"Puntos válidos: {len(valid_points)}")
-    
-    # Encontrar punto más cercano
-    if valid_points:
-        closest = min(valid_points, key=lambda p: p[2])
-        quality, angle, distance = closest
-        print(f"Objeto más cercano: {distance:.0f}mm a {angle:.1f}°")
-        if quality is not None:
-            print(f"  Calidad: {quality}/15")
-```
+* [`docs/DATA_FORMAT.md`](docs/DATA_FORMAT.md)
 
 ## Configuración avanzada
 Parámetros del `config.ini`:
