@@ -142,6 +142,7 @@ Documento vivo que refleja el estado actual y los próximos pasos del proyecto.
 - [x] **Documentación**
   - Ejemplos de uso en `examples/README.md`
   - Estructura del proyecto actualizada en `README.md`
+  - Crear `CONTRIBUTING.md` con guías de contribución
 
 ### Fase 11: Filtrado y Procesamiento Avanzado (Completado 2026-02-18)
 
@@ -180,6 +181,7 @@ Documento vivo que refleja el estado actual y los próximos pasos del proyecto.
   - Estructura de carpetas actualizada en `README.md` principal
   - Sección "Ejemplos por categoría" con 3 niveles
   - Características comunes de ejemplos avanzados documentadas
+  - Badges adicionales en README: Release version, Last commit 
 
 ---
 
@@ -194,8 +196,6 @@ Actualmente no hay tareas en progreso.
 ### Documentación y Consolidación
 
 - [ ] Documentar formato de datos recibidos (estructura de las tuplas)
-- [ ] Añadir badges al README (Python version, license, etc.)
-- [ ] Crear `CONTRIBUTING.md` con guías de contribución
 
 ### Integración con Repositorio Existente
 

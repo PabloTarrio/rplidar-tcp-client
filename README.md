@@ -1,4 +1,6 @@
 [![CI](https://github.com/PabloTarrio/rplidar-tcp-client/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/PabloTarrio/rplidar-tcp-client/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/PabloTarrio/rplidar-tcp-client)](https://github.com/PabloTarrio/rplidar-tcp-client/releases)
+[![Last Commit](https://img.shields.io/github/last-commit/PabloTarrio/rplidar-tcp-client)](https://github.com/PabloTarrio/rplidar-tcp-client/commits/main)
 
 # rplidar-tcp-client
 
