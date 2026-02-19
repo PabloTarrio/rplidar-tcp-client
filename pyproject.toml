@@ -16,7 +16,6 @@ keywords = ["rplidar", "lidar", "tcp", "raspberry-pi", "sensor", "robotics"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
-    "Topic :: Scientific/Engineering :: Robotics",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
