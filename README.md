@@ -1,14 +1,12 @@
 [![CI](https://github.com/PabloTarrio/rplidar-tcp-client/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/PabloTarrio/rplidar-tcp-client/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/PabloTarrio/rplidar-tcp-client)](https://github.com/PabloTarrio/rplidar-tcp-client/releases)
-[![Last Commit](https://img.shields.io/github/last-commit/PabloTarrio/rplidar-tcp-client)](https://github.com/PabloTarrio/rplidar-tcp-client/commits/main)
+[![PyPI](https://img.shields.io/pypi/v/rplidar-tcp-client.svg)](https://pypi.org/project/rplidar-tcp-client/)
+[![PyPI Downloads](https://img.shields.io/pypi/dm/rplidar-tcp-client.svg)](https://pypistats.org/packages/rplidar-tcp-client)
+[![License](https://img.shields.io/pypi/l/rplidar-tcp-client.svg)](https://pypi.org/project/rplidar-tcp-client/)
+[![Python](https://img.shields.io/pypi/pyversions/rplidar-tcp-client.svg)](https://pypi.org/project/rplidar-tcp-client/)
+[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
+[![Coverage](https://img.shields.io/badge/coverage-88%25-brightgreen.svg)](https://github.com/PabloTarrio/rplidar-tcp-client)
 
 # rplidar-tcp-client
-
-[![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
-[![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)]()
-[![Coverage](https://img.shields.io/badge/coverage-88%25-green.svg)]()
 
 Librería Python para acceder remotamente a datos del sensor RPLIDAR A1 conectado a una Raspberry Pi 4 mediante TCP sockets.
 
@@ -37,6 +35,25 @@ Proporcionar una forma simple y directa de obtener datos de escaneo LIDAR desde 
 ### Cliente (tu PC)
 - Python 3.10+
 - Conexión de red a la Raspberry Pi
+
+
+## Instalación rápida (1 minuto)
+
+```bash
+pip install rplidar-tcp-client
+# Con visualización (matploblib)
+pip install "rplidar-tcp-client[visualization]"
+```
+
+```python
+from lidarClient.client import LidarClient
+
+client = LidarClient("192.168.1.103", 5000)
+client.connect()
+scan = client.get_scan()  # Tu primera revolución
+print(f"{len([p for p in scan if p > 0])} puntos válidos")[1]
+client.disconnect()
+```
 
 ## Quick start - Tu primera medición en 10 minutos
 
