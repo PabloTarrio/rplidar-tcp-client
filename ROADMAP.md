@@ -184,6 +184,13 @@ Documento vivo que refleja el estado actual y los próximos pasos del proyecto.
   - Badges adicionales en README: Release version, Last commit
   - Documentar formato de datos recibidos (estructura de las tuplas) 
 
+  ### Fase 12: Publicación PyPI y v1.0.0 (Completado 2026-02-19)
+
+- [x] **Publicado en PyPI**: `pip install rplidar-tcp-client`
+- [x] **Versión 1.0.0** lista para producción académica
+- [x] **Badges profesionales** en README (version, downloads, license, Python)
+- [x] **Instalación rápida** documentada (1 minuto)
+
 ---
 
 ## En Progreso
@@ -204,10 +211,7 @@ Actualmente no hay tareas en progreso.
 
 ### Despliegue y Distribución
 
-- [ ] Publicar en PyPI como paquete instalable
-- [ ] Crear releases con versiones estables
-- [ ] Documentación en Read the Docs
-- [ ] Docker container para el servidor
+- [-] Docker container para el servidor
 
 ---
 
@@ -222,7 +226,7 @@ Actualmente no hay tareas en progreso.
 
 ## Notas
 
-- **Fecha última actualización:** 2026-02-18
+- **Fecha última actualización:** 2026-02-19
 - **Responsable:** Pablo Tarrio
 - **Repositorio:** rplidar-tcp-client
 - **Hardware:** Raspberry Pi 4 + RPLIDAR A1
