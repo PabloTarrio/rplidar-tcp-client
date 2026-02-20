@@ -10,7 +10,7 @@ from .client import (
 )
 from .config import ConfigError, load_config
 
-__version__ = "0.3.0"
+__version__ = "1.0.0"
 __all__ = [
     "LidarClient",
     "LidarConnectionError",
